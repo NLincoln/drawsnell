@@ -4,6 +4,14 @@ import bresenham from "./bresenham";
 const CANVAS_SIZE = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
+/* We can move these functions to another file if necessary */
+///////////////////////////////////////////////////////////////////////////////////////////
+function getcolor(R, G, B, A)
+{
+  return 'rgb(' + R + ', ' + G + ', ' + B + ', ' + A + ')';
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * So normal events have two things:
  * 1. Where the event occurred _on the page_
@@ -81,7 +89,7 @@ export default function Canvas(props) {
   useEffect(() => {
     let ctx = canvasRef.current.getContext("2d");
     ctx.scale(TILE_SIZE, TILE_SIZE);
-    ctx.fillStyle = "black";
+    ctx.fillStyle = props.drawcolor; // color you're drawing with
   }, []); // only run this once
 
   return (

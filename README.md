@@ -4,4 +4,5 @@
 1. Iinstall node.js: https://nodejs.org/en/
 2. Install yarn: https://yarnpkg.com/en/docs/install#windows-stable
 3. Open cmd or powershell in the project folder (the same folder containing this readme) and type: npm install
-4. Open cmd or powershell in the project folder (the same folder containing this readme) and type: npm start
+4. npm install react-color --save
+5. To start it, type: npm start
