@@ -3,6 +3,9 @@ import bresenham from "./bresenham";
 
 const CANVAS_SIZE = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
+const TOOL_LIST = ['draw', 'erase']; // Container for all tools. Add more as we go
+
+var currentTool = TOOL_LIST[0]; // Set current tool to draw
 
 /* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +14,7 @@ function getcolor(R, G, B, A)
   return 'rgb(' + R + ', ' + G + ', ' + B + ', ' + A + ')';
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * So normal events have two things:
@@ -56,17 +60,48 @@ function drawOnCanvas(event, prevEvent, canvas) {
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      ctx.fillRect(point.x, point.y, 1, 1);
+      if(currentTool === TOOL_LIST[0]) // Draw
+      {
+        ctx.fillRect(point.x, point.y, 1, 1);
+      }
+      else if(currentTool === TOOL_LIST[1]) // Erase
+      {
+        ctx.clearRect(point.x, point.y, 1, 1);
+      }
     }
   } else {
-    ctx.fillRect(position.x, position.y, 1, 1);
+    if(currentTool === TOOL_LIST[0]) // Draw
+    {
+      ctx.fillRect(position.x, position.y, 1, 1);
+    }
+    else if(currentTool === TOOL_LIST[1]) // Erase
+    {
+      ctx.clearRect(position.x, position.y, 1, 1);
+    }
   }
 }
+
+// Toggle between erase and draw
+function toggleErase(canvas)
+{
+  let ctx = canvas.getContext("2d");
+  if(currentTool === TOOL_LIST[1]) // If tool is erase
+  {
+    currentTool = TOOL_LIST[0]; // Set to draw
+  }
+  else
+  {
+    currentTool = TOOL_LIST[1]; // Set to erase
+  }
+}
+
 
 export default function Canvas(props) {
   let canvasRef = useRef(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
+
+
 
   const handleMouseDown = event => {
     drawOnCanvas(event, null, canvasRef.current);
@@ -92,6 +127,7 @@ export default function Canvas(props) {
     ctx.fillStyle = props.drawcolor; // color you're drawing with
   }, []); // only run this once
 
+  
   return (
     <>
       <div>
@@ -105,6 +141,15 @@ export default function Canvas(props) {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         />
+        
+        
+        
+        <button onClick={(e) => toggleErase(canvasRef.current)}>
+          Eraser
+        </button>
+
+
+
       </div>
     </>
   );
