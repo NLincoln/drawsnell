@@ -4,6 +4,7 @@ import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import ColorPicker from "./ColorPicker";
+import {TOOLS} from './tools';
 
 /* */
 
@@ -25,13 +26,8 @@ const GridArea = styled.div`
 
 export default function App() {
   
-  // Container for all tools. Add more as we go
-  const TOOLS = {
-    draw: 'draw',
-    erase: 'erase',
-  };
-  let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
-  
+   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
+
   // console.log(drawcolor)
   var drawcolor = 'rgb(0, 50, 100, 255)'
   // ColorPicker.setState({displayColorPicker: true});
@@ -45,7 +41,6 @@ export default function App() {
         <Canvas 
           drawcolor={drawcolor}
           currentTool={currentTool}
-          TOOLS={TOOLS}
         />
         {/* <Canvas /> */}
       </GridArea>
@@ -53,7 +48,6 @@ export default function App() {
         <ToolChest 
           currentTool={currentTool} 
           onToolChange={setCurrentTool}
-          TOOLS={TOOLS}
         />
       </GridArea>
       <GridArea area={"right-panel"}>

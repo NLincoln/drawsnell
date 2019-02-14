@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import bresenham from "./bresenham";
+import { TOOLS } from './tools';
 
 const CANVAS_SIZE = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
-let TOOLS; // Contains all the tools, passed down from app
 
 
 /* We can move these functions to another file if necessary */
@@ -111,7 +111,6 @@ export default function Canvas(props) {
     let ctx = canvasRef.current.getContext("2d");
     ctx.scale(TILE_SIZE, TILE_SIZE);
     ctx.fillStyle = props.drawcolor; // color you're drawing with
-    TOOLS = props.TOOLS;
   }, []); // only run this once
 
   

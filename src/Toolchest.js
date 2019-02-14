@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-//import {toggleErase} from './Canvas';
+import {TOOLS} from './tools';
 
 const SidebarWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -15,13 +15,13 @@ export default function Toolchest(props) {
 
   function toggleErase()
   {
-    if(props.currentTool === props.TOOLS.erase) // If tool is erase
+    if(props.currentTool === TOOLS.erase) // If tool is erase
     {
-      props.onToolChange(props.TOOLS.draw); // Set to draw
+      props.onToolChange(TOOLS.draw); // Set to draw
     }
     else
     {
-      props.onToolChange(props.TOOLS.erase); // Set to erase
+      props.onToolChange(TOOLS.erase); // Set to erase
     }
   }
   return <SidebarWrapper>Tools, etc, etc
