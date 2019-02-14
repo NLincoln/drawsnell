@@ -3,9 +3,9 @@ import bresenham from "./bresenham";
 
 const CANVAS_SIZE = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
-const TOOL_LIST = ['draw', 'erase']; // Container for all tools. Add more as we go
 
-var currentTool = TOOL_LIST[0]; // Set current tool to draw
+let TOOLS; // Contains all the tools, passed down from app
+
 
 /* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ function getPixelCoordsInCanvas({ x, y }) {
   };
 }
 
-function drawOnCanvas(event, prevEvent, canvas) {
+function drawOnCanvas(event, prevEvent, canvas, currentTool) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
   let ctx = canvas.getContext("2d");
@@ -60,47 +60,32 @@ function drawOnCanvas(event, prevEvent, canvas) {
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if(currentTool === TOOL_LIST[0]) // Draw
+      if(currentTool === TOOLS.draw) 
       {
         ctx.fillRect(point.x, point.y, 1, 1);
       }
-      else if(currentTool === TOOL_LIST[1]) // Erase
+      else if(currentTool === TOOLS.erase)
       {
         ctx.clearRect(point.x, point.y, 1, 1);
       }
     }
   } else {
-    if(currentTool === TOOL_LIST[0]) // Draw
+    if(currentTool === TOOLS.draw) // Draw
     {
       ctx.fillRect(position.x, position.y, 1, 1);
     }
-    else if(currentTool === TOOL_LIST[1]) // Erase
+    else if(currentTool === TOOLS.erase) // Erase
     {
       ctx.clearRect(position.x, position.y, 1, 1);
     }
   }
 }
 
-// Toggle between erase and draw
-function toggleErase(canvas)
-{
-  let ctx = canvas.getContext("2d");
-  if(currentTool === TOOL_LIST[1]) // If tool is erase
-  {
-    currentTool = TOOL_LIST[0]; // Set to draw
-  }
-  else
-  {
-    currentTool = TOOL_LIST[1]; // Set to erase
-  }
-}
-
-
 export default function Canvas(props) {
   let canvasRef = useRef(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
-
+ // let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
 
 
   const handleMouseDown = event => {
@@ -115,7 +100,8 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      drawOnCanvas(event, previousMouseEvent.current, canvasRef.current);
+      drawOnCanvas(event, previousMouseEvent.current, canvasRef.current, 
+        props.currentTool);
       event.persist();
       previousMouseEvent.current = event;
     }
@@ -125,6 +111,7 @@ export default function Canvas(props) {
     let ctx = canvasRef.current.getContext("2d");
     ctx.scale(TILE_SIZE, TILE_SIZE);
     ctx.fillStyle = props.drawcolor; // color you're drawing with
+    TOOLS = props.TOOLS;
   }, []); // only run this once
 
   
@@ -141,15 +128,7 @@ export default function Canvas(props) {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         />
-        
-        
-        
-        <button onClick={(e) => toggleErase(canvasRef.current)}>
-          Eraser
-        </button>
-
-
-
+    
       </div>
     </>
   );
