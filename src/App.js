@@ -32,6 +32,20 @@ export default function App() {
   var drawcolor = 'rgb(0, 50, 100, 255)'
   // ColorPicker.setState({displayColorPicker: true});
   
+  // Used to change the cursor style whenever currentTool gets updated
+  let root = document.getElementById("root");
+
+  if(currentTool === TOOLS.erase)
+  {
+    // Make it a pictue located at url
+    // root.style.cursor = "url('')"
+    root.style.cursor = "wait"; // Placeholder
+  }
+  else
+  {
+    root.style.cursor = "default";
+  }
+  
   return (
     <Grid>
       <GridArea area={"navbar"}>
