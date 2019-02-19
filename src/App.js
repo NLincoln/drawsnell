@@ -1,12 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import ColorPicker from "./ColorPicker";
-import {TOOLS} from './tools';
-
-/* */
+import { TOOLS } from "./tools";
 
 import styled from "@emotion/styled";
 
@@ -22,56 +20,48 @@ const GridArea = styled.div`
   grid-area: ${props => props["area"]};
 `;
 
-// const drawcolor = React.createContext('rgb(0, 50, 100, 255)');
-
 export default function App() {
-  
-   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
+  let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
 
-  // console.log(drawcolor)
-  var drawcolor = 'rgb(0, 50, 100, 255)'
-  // ColorPicker.setState({displayColorPicker: true});
-  
-  // Used to change the cursor style whenever currentTool gets updated
-  let root = document.getElementById("root");
+  const onToolChange = tool => {
+    // Used to change the cursor style whenever currentTool gets updated
+    let root = document.getElementById("root");
 
-  if(currentTool === TOOLS.erase)
-  {
-    // Make it a pictue located at url
-    // root.style.cursor = "url('')"
-    root.style.cursor = "wait"; // Placeholder
-  }
-  else
-  {
-    root.style.cursor = "default";
-  }
-  
+    if (tool === TOOLS.erase) {
+      // Make it a pictue located at url
+      // root.style.cursor = "url('')"
+      root.style.cursor = "wait"; // Placeholder
+    } else {
+      root.style.cursor = "default";
+    }
+    setCurrentTool(tool);
+  };
+
+  let [color, setColor] = useState({
+    r: "241",
+    g: "112",
+    b: "19",
+    a: "1"
+  });
+
   return (
     <Grid>
       <GridArea area={"navbar"}>
         <NavBar />
       </GridArea>
       <GridArea area={"canvas"}>
-        <Canvas 
-          drawcolor={drawcolor}
-          currentTool={currentTool}
-        />
-        {/* <Canvas /> */}
+        <Canvas drawColor={color} currentTool={currentTool} />
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest 
-          currentTool={currentTool} 
-          onToolChange={setCurrentTool}
-        />
+        <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel />
       </GridArea>
-      
+
       <GridArea area={"colorpicker"}>
-        <ColorPicker />
+        <ColorPicker color={color} onColorChange={setColor} />
       </GridArea>
-      
     </Grid>
   );
 }

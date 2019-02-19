@@ -1,20 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import bresenham from "./bresenham";
-import { TOOLS } from './tools';
+import { TOOLS } from "./tools";
 
 const CANVAS_SIZE = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
-
-
 /* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
-function getcolor(R, G, B, A)
-{
-  return 'rgb(' + R + ', ' + G + ', ' + B + ', ' + A + ')';
+function getcolor(R, G, B, A) {
+  return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-
 
 /**
  * So normal events have two things:
@@ -60,22 +56,18 @@ function drawOnCanvas(event, prevEvent, canvas, currentTool) {
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if(currentTool === TOOLS.draw) 
-      {
+      if (currentTool === TOOLS.draw) {
         ctx.fillRect(point.x, point.y, 1, 1);
-      }
-      else if(currentTool === TOOLS.erase)
-      {
+      } else if (currentTool === TOOLS.erase) {
         ctx.clearRect(point.x, point.y, 1, 1);
       }
     }
   } else {
-    if(currentTool === TOOLS.draw) // Draw
-    {
+    if (currentTool === TOOLS.draw) {
+      // Draw
       ctx.fillRect(position.x, position.y, 1, 1);
-    }
-    else if(currentTool === TOOLS.erase) // Erase
-    {
+    } else if (currentTool === TOOLS.erase) {
+      // Erase
       ctx.clearRect(position.x, position.y, 1, 1);
     }
   }
@@ -85,11 +77,10 @@ export default function Canvas(props) {
   let canvasRef = useRef(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
- // let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
-
 
   const handleMouseDown = event => {
     drawOnCanvas(event, null, canvasRef.current);
+
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
@@ -100,8 +91,12 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      drawOnCanvas(event, previousMouseEvent.current, canvasRef.current, 
-        props.currentTool);
+      drawOnCanvas(
+        event,
+        previousMouseEvent.current,
+        canvasRef.current,
+        props.currentTool
+      );
       event.persist();
       previousMouseEvent.current = event;
     }
@@ -110,10 +105,15 @@ export default function Canvas(props) {
   useEffect(() => {
     let ctx = canvasRef.current.getContext("2d");
     ctx.scale(TILE_SIZE, TILE_SIZE);
-    ctx.fillStyle = props.drawcolor; // color you're drawing with
-  }, []); // only run this once
+    ctx.fillStyle = props.drawColor; // color you're drawing with
+  }, []);
 
-  
+  useEffect(() => {
+    let ctx = canvasRef.current.getContext("2d");
+    let { drawColor } = props;
+    ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
+  }, [props.drawColor]);
+
   return (
     <>
       <div>
@@ -127,7 +127,6 @@ export default function Canvas(props) {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         />
-    
       </div>
     </>
   );
