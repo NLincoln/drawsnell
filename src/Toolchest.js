@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
+import {TOOLS} from './tools';
 
 const SidebarWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -8,6 +9,24 @@ const SidebarWrapper = styled.div`
   height: 100%;
 `;
 
+
+
 export default function Toolchest(props) {
-  return <SidebarWrapper>Tools, etc, etc</SidebarWrapper>;
+
+  function toggleErase()
+  {
+    if(props.currentTool === TOOLS.erase) // If tool is erase
+    {
+      props.onToolChange(TOOLS.draw); // Set to draw
+    }
+    else
+    {
+      props.onToolChange(TOOLS.erase); // Set to erase
+    }
+  }
+  return <SidebarWrapper>Tools, etc, etc
+    <button onClick={(e) => toggleErase()}>
+      Eraser
+    </button>
+  </SidebarWrapper>;
 }

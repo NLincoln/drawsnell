@@ -4,6 +4,7 @@ import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import ColorPicker from "./ColorPicker";
+import {TOOLS} from './tools';
 
 /* */
 
@@ -25,9 +26,25 @@ const GridArea = styled.div`
 
 export default function App() {
   
+   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
+
   // console.log(drawcolor)
   var drawcolor = 'rgb(0, 50, 100, 255)'
   // ColorPicker.setState({displayColorPicker: true});
+  
+  // Used to change the cursor style whenever currentTool gets updated
+  let root = document.getElementById("root");
+
+  if(currentTool === TOOLS.erase)
+  {
+    // Make it a pictue located at url
+    // root.style.cursor = "url('')"
+    root.style.cursor = "wait"; // Placeholder
+  }
+  else
+  {
+    root.style.cursor = "default";
+  }
   
   return (
     <Grid>
@@ -35,11 +52,17 @@ export default function App() {
         <NavBar />
       </GridArea>
       <GridArea area={"canvas"}>
-        <Canvas drawcolor={drawcolor} />
+        <Canvas 
+          drawcolor={drawcolor}
+          currentTool={currentTool}
+        />
         {/* <Canvas /> */}
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest />
+        <ToolChest 
+          currentTool={currentTool} 
+          onToolChange={setCurrentTool}
+        />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel />
