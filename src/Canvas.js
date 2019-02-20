@@ -111,7 +111,8 @@ export default function Canvas(props) {
   useEffect(() => {
     let ctx = canvasRef.current.getContext("2d");
     let { drawColor } = props;
-    ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
+    // ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
+    ctx.fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`;
   }, [props.drawColor]);
 
   return (

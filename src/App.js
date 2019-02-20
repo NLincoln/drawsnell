@@ -56,12 +56,12 @@ export default function App() {
         <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
       </GridArea>
       <GridArea area={"right-panel"}>
-        <RightPanel />
+        <RightPanel color={color} onColorChange={setColor}/>
       </GridArea>
 
-      <GridArea area={"colorpicker"}>
+      {/* <GridArea area={"colorpicker"}>
         <ColorPicker color={color} onColorChange={setColor} />
-      </GridArea>
+      </GridArea> */}
     </Grid>
   );
 }
