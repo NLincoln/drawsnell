@@ -3,8 +3,8 @@ import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
-import ColorPicker from "./ColorPicker";
 import { TOOLS } from "./tools";
+import composition from "./layers";
 
 import styled from "@emotion/styled";
 
@@ -21,6 +21,10 @@ const GridArea = styled.div`
 `;
 
 export default function App() {
+  
+  let aComp = new composition(40, 40);
+  let [mainComp, changeMainComp] = React.useState(aComp);
+  
   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
 
   const onToolChange = tool => {
@@ -36,32 +40,40 @@ export default function App() {
     }
     setCurrentTool(tool);
   };
-
+  
   let [color, setColor] = useState({
     r: "241",
     g: "112",
     b: "19",
     a: "1"
   });
-
+  
+  // testing testing 123
+  // let [oneTimeEvent, oneTimeEventFunc] = useState(true);
+  let [oneTimeEvent, changeOneTimeEvent] = useState(null);
+  function randomizeColors()
+  {
+    changeOneTimeEvent("randomizeColors");
+  }
+  function clearCanvas()
+  {
+    changeOneTimeEvent("clearCanvas");
+  }
+  
   return (
     <Grid>
       <GridArea area={"navbar"}>
         <NavBar />
       </GridArea>
       <GridArea area={"canvas"}>
-        <Canvas drawColor={color} currentTool={currentTool} />
+        <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp} oneTimeEvent={oneTimeEvent} changeOneTimeEvent={changeOneTimeEvent}/>
       </GridArea>
       <GridArea area={"toolchest"}>
         <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
       </GridArea>
       <GridArea area={"right-panel"}>
-        <RightPanel color={color} onColorChange={setColor}/>
+        <RightPanel color={color} onColorChange={setColor} randomizeColors={randomizeColors} clearCanvas={clearCanvas}/>
       </GridArea>
-
-      {/* <GridArea area={"colorpicker"}>
-        <ColorPicker color={color} onColorChange={setColor} />
-      </GridArea> */}
     </Grid>
   );
 }

@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import bresenham from "./bresenham";
 import { TOOLS } from "./tools";
 
-const CANVAS_SIZE = 40; // 40 "fake" pixels
+const CANVAS_SIZE_X = 40; // 40 "fake" pixels
+const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
 /* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
-function getcolor(R, G, B, A) {
-  return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
-}
+// function getcolor(R, G, B, A) {
+//   return "rgba(" + R + ", " + G + ", " + B + ", " + A + ")";
+// }
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -73,14 +74,60 @@ function drawOnCanvas(event, prevEvent, canvas, currentTool) {
   }
 }
 
+///////////////////////////////////
+// One Time Only Event Functions //
+///////////////////////////////////
+function getRandomIntInclusive(min, max) 
+{
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; 
+}
+
+function setRandColor(canvas)
+{
+  let ctx = canvas.getContext("2d");
+  let xx = 0;
+  let yy = 0;
+  for(xx = 0; xx < CANVAS_SIZE_X; xx++)
+  {
+    for(yy = 0; yy < CANVAS_SIZE_Y; yy++)
+    {
+      let rr = getRandomIntInclusive(0, 255);
+      let gg = getRandomIntInclusive(0, 255);
+      let bb = getRandomIntInclusive(0, 255);
+      ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+      ctx.fillRect(xx, yy, 1, 1);
+    }
+  }
+}
+
+function clearCanvas(canvas)
+{
+  let ctx = canvas.getContext("2d");
+  let xx = 0;
+  let yy = 0;
+  for(xx = 0; xx < CANVAS_SIZE_X; xx++)
+  {
+    for(yy = 0; yy < CANVAS_SIZE_Y; yy++)
+    {
+      ctx.fillStyle = `rgba(${255}, ${255}, ${255}, ${1.0})`;
+      ctx.fillRect(xx, yy, 1, 1);
+    }
+  }
+}
+///////////////////////////////////////
+// End One Time Only Event Functions //
+///////////////////////////////////////
+
 export default function Canvas(props) {
+  
   let canvasRef = useRef(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
     drawOnCanvas(event, null, canvasRef.current);
-
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
@@ -101,6 +148,26 @@ export default function Canvas(props) {
       previousMouseEvent.current = event;
     }
   };
+  
+  //// code for one-time only events ////
+  if(props.changeOneTimeEvent != null)
+  {
+    let { drawColor } = props;
+    if(props.oneTimeEvent == "randomizeColors")
+    {
+      setRandColor(canvasRef.current);
+      canvasRef.current.getContext("2d").fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`;
+      // props.changeOneTimeEvent(null);
+    }
+    else if(props.oneTimeEvent == "clearCanvas")
+    {
+      // window.alert("clearCanvas");
+      clearCanvas(canvasRef.current);
+      canvasRef.current.getContext("2d").fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`;
+    }
+    props.changeOneTimeEvent(null);
+  }
+  //// end code for one-time only events ////
 
   useEffect(() => {
     let ctx = canvasRef.current.getContext("2d");
@@ -111,8 +178,7 @@ export default function Canvas(props) {
   useEffect(() => {
     let ctx = canvasRef.current.getContext("2d");
     let { drawColor } = props;
-    // ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
-    ctx.fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`;
+    ctx.fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`; // ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
   }, [props.drawColor]);
 
   return (
@@ -121,8 +187,8 @@ export default function Canvas(props) {
         <canvas
           id={"canvas"}
           style={{ border: "2px solid black" }}
-          width={String(CANVAS_SIZE * TILE_SIZE)}
-          height={String(CANVAS_SIZE * TILE_SIZE)}
+          width={String(CANVAS_SIZE_X * TILE_SIZE)}
+          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           ref={canvasRef}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
