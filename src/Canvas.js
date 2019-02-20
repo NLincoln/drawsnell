@@ -46,7 +46,14 @@ function getPixelCoordsInCanvas({ x, y }) {
   };
 }
 
-function drawOnCanvas(event, prevEvent, canvas, currentTool) {
+function drawColorOnCanvasThenRestore(context, { x, y }, color) {
+  let oldColor = context.fillStyle;
+  context.fillStyle = color;
+  context.fillRect(x, y, 1, 1);
+  context.fillStyle = oldColor;
+}
+
+function drawOnCanvas(event, prevEvent, canvas, tool) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
   let ctx = canvas.getContext("2d");
@@ -56,31 +63,120 @@ function drawOnCanvas(event, prevEvent, canvas, currentTool) {
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if (currentTool === TOOLS.draw) {
+      if (tool === TOOLS.erase) {
+        drawColorOnCanvasThenRestore(
+          ctx,
+          point,
+          getBackgroundColorForPixel(point)
+        );
+      } else if (tool === TOOLS.draw) {
         ctx.fillRect(point.x, point.y, 1, 1);
-      } else if (currentTool === TOOLS.erase) {
-        ctx.clearRect(point.x, point.y, 1, 1);
       }
     }
   } else {
-    if (currentTool === TOOLS.draw) {
-      // Draw
+    if (tool === TOOLS.erase) {
+      drawColorOnCanvasThenRestore(
+        ctx,
+        position,
+        getBackgroundColorForPixel(position)
+      );
+    } else if (tool === TOOLS.draw) {
       ctx.fillRect(position.x, position.y, 1, 1);
-    } else if (currentTool === TOOLS.erase) {
-      // Erase
-      ctx.clearRect(position.x, position.y, 1, 1);
+    }
+  }
+}
+
+function usePseudoCanvas() {
+  let realCanvasRef = useRef(null);
+  let fakeCanvasRef = useRef(null);
+
+  return {
+    ref: realCanvasRef,
+    fakeRef: fakeCanvasRef,
+
+    real() {
+      return realCanvasRef.current;
+    },
+    fake() {
+      return fakeCanvasRef.current;
+    },
+
+    /**
+     * Draw on both canvases using the mouse events
+     * @param {MouseEvent} event
+     * @param {MouseEvent} prevEvent
+     */
+    drawEvent(event, prevEvent, tool) {
+      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool));
+    },
+
+    /**
+     * Draws the color of a single pixel on the canvas
+     */
+    draw({ x, y }) {
+      this.interact(canvas => {
+        let ctx = canvas.getContext("2d");
+        ctx.fillRect(x, y, 1, 1);
+      });
+    },
+
+    /**
+     * Sets the color of both canvases
+     * @param {string} color
+     */
+    setColor(color) {
+      this.interact(canvas => {
+        let ctx = canvas.getContext("2d");
+        ctx.fillStyle = color;
+      });
+    },
+
+    /**
+     * Interact with both canvases imperatively. You must provide a
+     * callback that can handle both the fake canvas and the real one.
+     *
+     * This is a fairly low-level api.
+     */
+    interact(cb) {
+      cb(realCanvasRef.current);
+      cb(fakeCanvasRef.current);
+    }
+  };
+}
+
+/**
+ * Our canvas should have a transparent background. This function
+ * will return what the background color should be for a given
+ * pixel on the canvas.
+ */
+function getBackgroundColorForPixel({ x, y }) {
+  let COLOR_A = "grey";
+  let COLOR_B = "darkgrey";
+  let xIsOdd = x % 2 == 1;
+  let yIsOdd = y % 2 == 1;
+  if (xIsOdd) {
+    if (yIsOdd) {
+      return COLOR_A;
+    } else {
+      return COLOR_B;
+    }
+  } else {
+    if (yIsOdd) {
+      return COLOR_B;
+    } else {
+      return COLOR_A;
     }
   }
 }
 
 export default function Canvas(props) {
-  let canvasRef = useRef(null);
+  let canvas = usePseudoCanvas();
+
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
-    drawOnCanvas(event, null, canvasRef.current);
-
+    canvas.drawEvent(event, null, props.currentTool);
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
@@ -91,39 +187,57 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      drawOnCanvas(
-        event,
-        previousMouseEvent.current,
-        canvasRef.current,
-        props.currentTool
-      );
+      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool);
       event.persist();
       previousMouseEvent.current = event;
     }
   };
 
   useEffect(() => {
-    let ctx = canvasRef.current.getContext("2d");
-    ctx.scale(TILE_SIZE, TILE_SIZE);
-    ctx.fillStyle = props.drawColor; // color you're drawing with
+    canvas.interact(canvas => {
+      let ctx = canvas.getContext("2d");
+      ctx.scale(TILE_SIZE, TILE_SIZE);
+    });
   }, []);
 
   useEffect(() => {
-    let ctx = canvasRef.current.getContext("2d");
     let { drawColor } = props;
-    // ctx.fillStyle = `rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`;
-    ctx.fillStyle = `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`;
+    canvas.setColor(`rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`);
   }, [props.drawColor]);
+
+  // draw the transparency grid on the background
+  useEffect(() => {
+    let ctx = canvas.real().getContext("2d");
+    let oldColor = ctx.fillStyle;
+    for (let y = 0; y < CANVAS_SIZE; ++y) {
+      for (let x = 0; x < CANVAS_SIZE; ++x) {
+        ctx.fillStyle = getBackgroundColorForPixel({ x, y });
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+
+    ctx.fillStyle = oldColor;
+  }, []);
 
   return (
     <>
       <div>
+        <canvas id={"hidden-canvas"} hidden={true} ref={canvas.fakeRef} />
+        <canvas
+          hidden={true}
+          id={"hidden-canvas"}
+          style={{ border: "2px solid black" }}
+          width={String(CANVAS_SIZE * TILE_SIZE)}
+          height={String(CANVAS_SIZE * TILE_SIZE)}
+          ref={canvas.fakeRef}
+        />
+
         <canvas
           id={"canvas"}
           style={{ border: "2px solid black" }}
           width={String(CANVAS_SIZE * TILE_SIZE)}
           height={String(CANVAS_SIZE * TILE_SIZE)}
-          ref={canvasRef}
+          ref={canvas.ref}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
