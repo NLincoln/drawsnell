@@ -21,7 +21,6 @@ const GridArea = styled.div`
 `;
 
 export default function App() {
-  
   //////////////////////////
   // testing compositions //
   let aComp = new composition(40, 40, 255, 255, 255, 1.0); // used as the alpha background
@@ -30,7 +29,7 @@ export default function App() {
   // aComp.layers[1].opacity = 1.0; // set to 100% opacity
   // end testing compositions //
   //////////////////////////////
-  
+
   // a state with a list containing all of the users currently selected layers
   let [activeLayers, changeActiveLayers] = useState([1]);
   // a value telling the canvas to do something (like redraw itself) exactly once
@@ -68,13 +67,29 @@ export default function App() {
       </GridArea>
       <GridArea area={"canvas"}>
         {/* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */}
-        <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp} oneTimeEvent={oneTimeEvent} changeOneTimeEvent={changeOneTimeEvent} activeLayers={activeLayers} changeActiveLayers={changeActiveLayers}/>
+        <Canvas
+          drawColor={color}
+          currentTool={currentTool}
+          mainComp={mainComp}
+          oneTimeEvent={oneTimeEvent}
+          changeOneTimeEvent={changeOneTimeEvent}
+          activeLayers={activeLayers}
+          changeActiveLayers={changeActiveLayers}
+        />
       </GridArea>
       <GridArea area={"toolchest"}>
         <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
       </GridArea>
       <GridArea area={"right-panel"}>
-        <RightPanel color={color} onColorChange={setColor} mainComp={mainComp} oneTimeEvent={oneTimeEvent} changeOneTimeEvent={changeOneTimeEvent} activeLayers={activeLayers} changeActiveLayers={changeActiveLayers}/>
+        <RightPanel
+          color={color}
+          onColorChange={setColor}
+          mainComp={mainComp}
+          oneTimeEvent={oneTimeEvent}
+          changeOneTimeEvent={changeOneTimeEvent}
+          activeLayers={activeLayers}
+          changeActiveLayers={changeActiveLayers}
+        />
       </GridArea>
 
       {/* <GridArea area={"colorpicker"}>
