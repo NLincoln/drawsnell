@@ -7,9 +7,11 @@ const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
 /* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
+/*
 function getcolor(R, G, B, A) {
   return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
 }
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -53,7 +55,12 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
   context.fillStyle = oldColor;
 }
 
-function drawOnCanvas(event, prevEvent, canvas, tool) {
+function fillRadius(context, { x, y }, radius) {
+  const diameter = radius * 2 - 1;
+  context.fillRect(x - (radius - 1), y - (radius - 1), diameter, diameter);
+}
+
+function drawOnCanvas(event, prevEvent, canvas, tool, radius) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
   let ctx = canvas.getContext("2d");
@@ -70,7 +77,11 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
           getBackgroundColorForPixel(point)
         );
       } else if (tool === TOOLS.draw) {
-        ctx.fillRect(point.x, point.y, 1, 1);
+        fillRadius(
+          ctx,
+          point,
+          radius
+        );
       }
     }
   } else {
@@ -81,7 +92,11 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
         getBackgroundColorForPixel(position)
       );
     } else if (tool === TOOLS.draw) {
-      ctx.fillRect(position.x, position.y, 1, 1);
+      fillRadius(
+        ctx,
+        position,
+        radius
+      );
     }
   }
 }
@@ -106,8 +121,8 @@ function usePseudoCanvas() {
      * @param {MouseEvent} event
      * @param {MouseEvent} prevEvent
      */
-    drawEvent(event, prevEvent, tool) {
-      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool));
+    drawEvent(event, prevEvent, tool, radius) {
+      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool, radius));
     },
 
     /**
@@ -152,8 +167,8 @@ function usePseudoCanvas() {
 function getBackgroundColorForPixel({ x, y }) {
   let COLOR_A = "grey";
   let COLOR_B = "darkgrey";
-  let xIsOdd = x % 2 == 1;
-  let yIsOdd = y % 2 == 1;
+  let xIsOdd = x % 2 === 1;
+  let yIsOdd = y % 2 === 1;
   if (xIsOdd) {
     if (yIsOdd) {
       return COLOR_A;
@@ -187,7 +202,7 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool);
+      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool, props.radius);
       event.persist();
       previousMouseEvent.current = event;
     }

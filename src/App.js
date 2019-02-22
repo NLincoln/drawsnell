@@ -3,7 +3,6 @@ import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
-import ColorPicker from "./ColorPicker";
 import { TOOLS } from "./tools";
 
 import styled from "@emotion/styled";
@@ -44,19 +43,21 @@ export default function App() {
     a: "1"
   });
 
+  let [radius, setRadius] = useState(1);
+
   return (
     <Grid>
       <GridArea area={"navbar"}>
         <NavBar />
       </GridArea>
       <GridArea area={"canvas"}>
-        <Canvas drawColor={color} currentTool={currentTool} />
+        <Canvas drawColor={color} currentTool={currentTool} radius={radius} />
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
+        <ToolChest currentTool={currentTool} onToolChange={onToolChange} setRadius={setRadius} />
       </GridArea>
       <GridArea area={"right-panel"}>
-        <RightPanel color={color} onColorChange={setColor}/>
+        <RightPanel color={color} onColorChange={setColor} />
       </GridArea>
 
       {/* <GridArea area={"colorpicker"}>
