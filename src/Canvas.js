@@ -60,8 +60,9 @@ function drawColorOnCanvasThenRestore(context, {
   y
 }, color) {
   let oldColor = context.fillStyle;
+  const diameter = radius * 2 - 1;
   context.fillStyle = color;
-  context.fillRect(x, y, 1, 1);
+  context.fillRect(x - (radius - 1), y - (radius - 1), diameter, diameter);
   context.fillStyle = oldColor;
 }
 
