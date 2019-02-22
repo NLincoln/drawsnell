@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, {
+  useState
+} from "react";
 import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import composition from "./layers";
-import { TOOLS } from "./tools";
+import {
+  TOOLS
+} from "./tools";
 
 import styled from "@emotion/styled";
 
@@ -99,9 +103,11 @@ export default function App() {
         />
       </GridArea>
 
-      {/* <GridArea area={"colorpicker"}>
-        <ColorPicker color={color} onColorChange={setColor} />
-      </GridArea> */}
-    </Grid>
-  );
+      {
+        /* <GridArea area={"colorpicker"}>
+                <ColorPicker color={color} onColorChange={setColor} />
+              </GridArea> */
+      } <
+    /Grid>
+    );
 }

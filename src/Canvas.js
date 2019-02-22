@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import bresenham from "./bresenham";
-import { TOOLS } from "./tools";
+import {
+  TOOLS
+} from "./tools";
 
 const CANVAS_SIZE_X = 40; // 40 "fake" pixels
 const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
@@ -33,7 +39,10 @@ function getPositionOfEventOnElement(event) {
  * in "pixel" space are.
  * @param {{ x: number, y: number }} param
  */
-function getPixelCoordsInCanvas({ x, y }) {
+function getPixelCoordsInCanvas({
+  x,
+  y
+}) {
   return {
     x: Math.floor(x / TILE_SIZE),
     y: Math.floor(y / TILE_SIZE)
@@ -336,7 +345,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
     /**
      * Draws the color of a single pixel on the canvas
      */
-    draw({ x, y }) {
+    draw({
+      x,
+      y
+    }) {
       this.interact(canvas => {
         let ctx = canvas.getContext("2d");
         ctx.fillRect(x, y, 1, 1);
@@ -447,7 +459,10 @@ function getBackgroundColorForPixel({ x, y }) {
   }
 }
 
-function getBackgroundColorForPixelRGBA({ x, y }) {
+function getBackgroundColorForPixelRGBA({
+  x,
+  y
+}) {
   let COLOR_A = [211, 211, 211, 1.0];
   let COLOR_B = [169, 169, 169, 1.0];
   let xIsOdd = x % 2 == 1;
