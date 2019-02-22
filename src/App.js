@@ -34,7 +34,7 @@ export default function App() {
   let [activeLayers, changeActiveLayers] = useState([1]);
   // just used to update the GUI when doing things such as adding a new layer
   let [GUI, changeGUI] = useState(null);
-  
+
   // a value telling the canvas to do something (like redraw itself) exactly once
   let [oneTimeEvent, changeOneTimeEvent] = useState(null);
   // the data structure holding all of the pixel and layer data
@@ -50,23 +50,25 @@ export default function App() {
       // Make it a pictue located at url
       // root.style.cursor = "url('')"
       root.style.cursor = "alias"; // Placeholder
-    } 
-    else if(tool === TOOLS.fill)
+    }
+    else if (tool === TOOLS.fill)
       root.style.cursor = "crosshair"; // Placeholder
-    else if(tool === TOOLS.select)
-      root.style.cursor = "cell"; // Placeholder 
+    else if (tool === TOOLS.select)
+      root.style.cursor = "cell"; // Placeholder
     else
       root.style.cursor = "default"; // Placeholder
-    
+
     setCurrentTool(tool);
   };
-  
+
   let [color, setColor] = useState({
     r: "241",
     g: "112",
     b: "19",
     a: "1"
   });
+
+  let [radius, setRadius] = useState(1);
 
   return (
     <Grid>
@@ -86,7 +88,7 @@ export default function App() {
         />
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
+        <ToolChest currentTool={currentTool} onToolChange={onToolChange} setRadius={setRadius} />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel
