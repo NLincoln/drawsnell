@@ -47,14 +47,14 @@ export default function App() {
       // Make it a pictue located at url
       // root.style.cursor = "url('')"
       root.style.cursor = "alias"; // Placeholder
-    } 
-    else if(tool === TOOLS.fill)
+    }
+    else if (tool === TOOLS.fill)
       root.style.cursor = "crosshair"; // Placeholder
-    else if(tool === TOOLS.select)
-      root.style.cursor = "cell"; // Placeholder 
+    else if (tool === TOOLS.select)
+      root.style.cursor = "cell"; // Placeholder
     else
       root.style.cursor = "default"; // Placeholder
-    
+
     setCurrentTool(tool);
   };
 
@@ -64,6 +64,8 @@ export default function App() {
     b: "19",
     a: "1"
   });
+
+  let [radius, setRadius] = useState(1);
 
   return (
     <Grid>
@@ -83,7 +85,7 @@ export default function App() {
         />
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
+        <ToolChest currentTool={currentTool} onToolChange={onToolChange} setRadius={setRadius} />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel
