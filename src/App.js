@@ -107,7 +107,7 @@ export default function App() {
         /* <GridArea area={"colorpicker"}>
                 <ColorPicker color={color} onColorChange={setColor} />
               </GridArea> */
-      } <
-    /Grid>
-      );
+      }
+    </Grid>
+  );
 }
