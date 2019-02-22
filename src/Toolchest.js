@@ -18,6 +18,12 @@ export default function Toolchest(props) {
       props.onToolChange(tool);
     }
   };
+
+  function updateRadius() {
+    const value = document.getElementById("radius").value;
+    props.setRadius(value);
+  }
+
   return (
     <SidebarWrapper>
       Tools, etc, etc
@@ -25,6 +31,13 @@ export default function Toolchest(props) {
       <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
       <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
       <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
+      <div class="radiusSlider">
+        <p>Radius: </p>
+        <input type="number" id="radius" min="1" max="100" defaultValue="1" />
+        <button onClick={updateRadius}>
+          Submit
+      </button>
+      </div>
     </SidebarWrapper>
   );
 }
