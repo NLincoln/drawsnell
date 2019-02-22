@@ -48,10 +48,11 @@ function getPixelCoordsInCanvas({ x, y }) {
   };
 }
 
-function drawColorOnCanvasThenRestore(context, { x, y }, color) {
+function drawColorOnCanvasThenRestore(context, { x, y }, color, radius) {
   let oldColor = context.fillStyle;
+  const diameter = radius * 2 - 1;
   context.fillStyle = color;
-  context.fillRect(x, y, 1, 1);
+  context.fillRect(x - (radius - 1), y - (radius - 1), diameter, diameter);
   context.fillStyle = oldColor;
 }
 
@@ -74,7 +75,8 @@ function drawOnCanvas(event, prevEvent, canvas, tool, radius) {
         drawColorOnCanvasThenRestore(
           ctx,
           point,
-          getBackgroundColorForPixel(point)
+          getBackgroundColorForPixel(point),
+          radius
         );
       } else if (tool === TOOLS.draw) {
         fillRadius(
@@ -89,7 +91,8 @@ function drawOnCanvas(event, prevEvent, canvas, tool, radius) {
       drawColorOnCanvasThenRestore(
         ctx,
         position,
-        getBackgroundColorForPixel(position)
+        getBackgroundColorForPixel(position),
+        radius
       );
     } else if (tool === TOOLS.draw) {
       fillRadius(
@@ -191,7 +194,7 @@ export default function Canvas(props) {
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
-    canvas.drawEvent(event, null, props.currentTool);
+    canvas.drawEvent(event, null, props.currentTool, props.radius);
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
