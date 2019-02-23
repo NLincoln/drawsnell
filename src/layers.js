@@ -32,11 +32,11 @@ class layer
 
 class composition //extends React.Component
 {
-  constructor(width = 40, height = 40)
+  constructor(width = 40, height = 40, r = 255, g = 255, b = 255, a = 1)
   {
     this.width = width;
     this.height = height;
-    let baselayer = new layer(this.width, this.height);
+    let baselayer = new layer(this.width, this.height, r = r, g = g, b = b, a = a);
     this.layers = [baselayer];
   }
   
@@ -52,15 +52,15 @@ class composition //extends React.Component
       }
       else
       {
-        window.alert("Your array indices are out of bounds!");
+        window.alert("Your array indices are out of bounds!  See layers.js file for reference.");
       }
     }
   }
   
   // adds a new layer on top
-  addLayer()
+  addLayer(r = 255, g = 255, b = 255, a = 0)
   {
-    this.layers.push(new layer(this.width, this.height));
+    this.layers.push(new layer(this.width, this.height, r, g, b, a));
   }
   
   // removes a layer by index
@@ -71,7 +71,9 @@ class composition //extends React.Component
   
   // returns the layer corresponding to what's actually displayed
   // this is what you see when all layers are on top of each other
-  getComposite()
+  // when x and y are null, composite all layers for ALL pixels
+  // when x and y are integers, composite only for a single pixel
+  getComposite(x = null, y = null)
   {
     // baselayer needs to be a deep copy of the real base layer
     var baselayer = new layer(this.width, this.height);

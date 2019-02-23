@@ -3,8 +3,8 @@ import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
-import { TOOLS } from "./tools";
 import composition from "./layers";
+import { TOOLS } from "./tools";
 
 import styled from "@emotion/styled";
 
@@ -22,7 +22,19 @@ const GridArea = styled.div`
 
 export default function App() {
   
-  let aComp = new composition(40, 40);
+  //////////////////////////
+  // testing compositions //
+  let aComp = new composition(40, 40, 255, 255, 255, 1.0); // used as the alpha background
+  aComp.addLayer(255, 255, 255, 0); // empty layer
+  aComp.layers[1].opacity = 1.0; // set to 75% opacity
+  // end testing compositions //
+  //////////////////////////////
+  
+  let [oneTimeEvent, changeOneTimeEvent] = useState("redrawCanvas"); // used for events that require a complete redraw of the canvas (such as swapping layer order)
+  // let [oneTimeEvent, changeOneTimeEvent] = useState(null); // used for events that require a complete redraw of the canvas (such as swapping layer order)
+  
+  // changeOneTimeEvent("redrawCanvas")
+  
   let [mainComp, changeMainComp] = React.useState(aComp);
   
   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
@@ -40,40 +52,33 @@ export default function App() {
     }
     setCurrentTool(tool);
   };
-  
+
   let [color, setColor] = useState({
     r: "241",
     g: "112",
     b: "19",
     a: "1"
   });
-  
-  // testing testing 123
-  // let [oneTimeEvent, oneTimeEventFunc] = useState(true);
-  let [oneTimeEvent, changeOneTimeEvent] = useState(null);
-  function randomizeColors()
-  {
-    changeOneTimeEvent("randomizeColors");
-  }
-  function clearCanvas()
-  {
-    changeOneTimeEvent("clearCanvas");
-  }
-  
+
   return (
     <Grid>
       <GridArea area={"navbar"}>
         <NavBar />
       </GridArea>
       <GridArea area={"canvas"}>
+        {/* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */}
         <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp} oneTimeEvent={oneTimeEvent} changeOneTimeEvent={changeOneTimeEvent}/>
       </GridArea>
       <GridArea area={"toolchest"}>
         <ToolChest currentTool={currentTool} onToolChange={onToolChange} />
       </GridArea>
       <GridArea area={"right-panel"}>
-        <RightPanel color={color} onColorChange={setColor} randomizeColors={randomizeColors} clearCanvas={clearCanvas}/>
+        <RightPanel color={color} onColorChange={setColor}/>
       </GridArea>
+
+      {/* <GridArea area={"colorpicker"}>
+        <ColorPicker color={color} onColorChange={setColor} />
+      </GridArea> */}
     </Grid>
   );
 }
