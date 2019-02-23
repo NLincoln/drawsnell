@@ -55,19 +55,23 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
 }
 
 // this updates the values of layers but does not redraw the canvas!
-function updateLayerAtCoordWithColor(mainComp, x, y, r, g, b, a)
+function updateLayerAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
 {
   if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
   {
     // need to get the actual color somehow!
-    mainComp.layers[1].pixelData[x][y].r = r;
-    mainComp.layers[1].pixelData[x][y].g = g;
-    mainComp.layers[1].pixelData[x][y].b = b;
-    mainComp.layers[1].pixelData[x][y].a = a;
+    for(let ii = 0; ii < activeLayers.length; ii++)
+    {
+      let ind = activeLayers[ii];
+      mainComp.layers[ind].pixelData[x][y].r = r;
+      mainComp.layers[ind].pixelData[x][y].g = g;
+      mainComp.layers[ind].pixelData[x][y].b = b;
+      mainComp.layers[ind].pixelData[x][y].a = a;
+    }
   }
 }
 
-function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, drawColor) {
+function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, drawColor) {
   // window.alert(mainComp.layers[0].pixelData[0][0].r);
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
@@ -78,10 +82,12 @@ function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, drawColor) {
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if (tool === TOOLS.erase) {
-        updateLayerAtCoordWithColor(mainComp, point.x, point.y, 255, 255, 255, 0);
-      } else if (tool === TOOLS.draw) {
-        updateLayerAtCoordWithColor(mainComp, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+      if (tool === TOOLS.erase) 
+      {
+        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, 255, 255, 255, 0);
+      } else if (tool === TOOLS.draw) 
+      {
+        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
       }
     }
   } 
@@ -119,8 +125,8 @@ function usePseudoCanvas() {
      * @param {MouseEvent} event
      * @param {MouseEvent} prevEvent
      */
-    drawEvent(event, prevEvent, tool, mainComp, drawColor) {
-      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool, mainComp, drawColor));
+    drawEvent(event, prevEvent, tool, mainComp, activeLayers, drawColor) {
+      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, drawColor));
       this.compositeLayersForAllPixels(mainComp); // actually make all the changes to the layer visible
     },
 
@@ -237,7 +243,7 @@ export default function Canvas(props) {
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
-    canvas.drawEvent(event, null, props.currentTool, props.mainComp, props.drawColor);
+    canvas.drawEvent(event, null, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
@@ -248,7 +254,7 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool, props.mainComp, props.drawColor);
+      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
       event.persist();
       previousMouseEvent.current = event;
     }
@@ -264,9 +270,17 @@ export default function Canvas(props) {
   ///////////////////////////////////////////
   //// code for one-time only events ////////
   ///////////////////////////////////////////  
-  // useEffect(() => {
-  //   canvas.compositeLayersForAllPixels(props.mainComp);
-  // }, []);
+  
+  if(props.oneTimeEvent == "redrawCanvas")
+  {
+    // window.alert("yo");
+    let ctx = canvas.real().getContext("2d");
+    // window.alert(ctx);
+    canvas.compositeLayersForAllPixels(props.mainComp);
+    props.changeOneTimeEvent(null);
+  }
+  
+
   ///////////////////////////////////////////
   //// end code for one-time only events ////
   ///////////////////////////////////////////
