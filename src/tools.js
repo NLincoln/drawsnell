@@ -2,4 +2,6 @@
 export const TOOLS = {
     draw: 'draw',
     erase: 'erase',
+    fill: 'fill',
+    eyedropper: 'eyedropper',
 };

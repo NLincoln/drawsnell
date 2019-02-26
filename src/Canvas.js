@@ -10,6 +10,16 @@ const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 function getcolor(R, G, B, A) {
   return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
 }
+
+function getColorFromImageData(imgData)
+{
+  console.log("red " + imgData.data[0]);
+  console.log("green " + imgData.data[1]);
+  console.log("blue " + imgData.data[2]);
+  console.log("alpha " + imgData.data[3]);
+  return getcolor(imgData.data[0], imgData.data[1], 
+    imgData.data[2], imgData.data[3]);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -53,6 +63,89 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
   context.fillStyle = oldColor;
 }
 
+/*
+  Needs location of current rectangle.
+  First, check to see if rectangle is same color
+  as passed color. 
+  Second, if it is the same, grab current color in var, then fill 
+  rectangle with selected drawcolor.
+  Then, calls this function for adjacent rectangles
+*/
+function fillTool(event, canvas)
+{
+  let ctx = canvas.getContext("2d");
+  let position = getPositionOfEventOnElement(event);
+  position = getPixelCoordsInCanvas(position);
+  //let ctx = canvas.getContext("2d");
+  //let oldColor = tmp.data[0];
+  let pixelStack = [[position.x, position.y]]; // x and y coords of clicked location
+  let color = getColorFromImageData(ctx.getImageData(position.x, position.y,1,1));
+  while(pixelStack.length)
+  {
+    let newPos = pixelStack.pop();
+    let newX = newPos[0];
+    let newY = newPos[1];
+    let leftFill, rightFill;
+    let currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+    while(newY-- >= 0 && currentTileColor===color)
+    {
+      currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+    }
+    ++newY;
+    currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+    leftFill = false;
+    rightFill = false;
+console.log("before fill while");
+    while(newY++ < ctx.height-1 && currentTileColor===color)
+    {
+      console.log("in fill while");
+      ctx.fillRect(newX, newY, 1, 1);
+
+      // Checking left tiles
+      if(newX > 0)
+      {
+        // Check to see if left tile needs to be filled eventually
+        if(getColorFromImageData(ctx.getImageData(newX-1,newY,1,1))===color)
+        {
+          // If that column is not marked for filling
+          if(!leftFill)
+          {
+            pixelStack.push([newX-1,newY]);
+            leftFill = true;
+          }
+        }
+        // If left pixel not a color to be filled and that column was marked for fililng
+        else if(leftFill)
+        {
+          leftFill = false;
+        }
+      }
+
+      // Checking right tiles
+      if(newX < ctx.width-1)
+      {
+        // If the right tile is the color to be filled
+        if(getColorFromImageData(ctx.getImageData(newX+1,newY,1,1,)) === color)
+        {
+          // If that column is not marked for filling
+          if(!rightFill)
+          {
+            pixelStack.push([newX+1,newY]);
+            rightFill = true;
+          }
+        }
+        else if(rightFill)
+        {
+          rightFill = false;
+        }
+      }
+    } // End fill while
+    
+    
+
+  } // End main while
+} // End fillTool
+
 function drawOnCanvas(event, prevEvent, canvas, tool) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
@@ -72,6 +165,12 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
       } else if (tool === TOOLS.draw) {
         ctx.fillRect(point.x, point.y, 1, 1);
       }
+      /* else if(tool === TOOLS.fill)
+      {
+        console.log("bres call");
+        let color = getColorFromImageData(ctx.getImageData(point.x, point.y, 1, 1));
+        fillTool(point.x, point.y, ctx, color);
+      } */
     }
   } else {
     if (tool === TOOLS.erase) {
@@ -83,6 +182,13 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
     } else if (tool === TOOLS.draw) {
       ctx.fillRect(position.x, position.y, 1, 1);
     }
+    /* else if(tool === TOOLS.fill)
+    {
+      console.log('calling');
+      let tmp = ctx.getImageData(position.x,position.y,1,1);
+      let color = "rgb(" + tmp.data[0] + ", " + tmp.data[1] + ", " + tmp.data[2] + ", " + tmp.data[3] + ")";
+      fillTool(position.x, position.y, ctx, color);
+    } */
   }
 }
 
@@ -107,6 +213,15 @@ function usePseudoCanvas() {
      * @param {MouseEvent} prevEvent
      */
     drawEvent(event, prevEvent, tool) {
+      if(tool === TOOLS.fill)
+      {
+        this.interact(canvas => {
+          //let ctx = canvas.getContext("2d");
+          let position = getPositionOfEventOnElement(event);
+          position = getPixelCoordsInCanvas(position);
+          fillTool(event, canvas); 
+        });
+      }
       this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool));
     },
 
@@ -176,6 +291,7 @@ export default function Canvas(props) {
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
+    
     canvas.drawEvent(event, null, props.currentTool);
     setIsDragging(true);
     event.persist();
