@@ -63,7 +63,10 @@ export default function RightPanel(props)
     props.mainComp.layers[2] = temp;
     props.changeOneTimeEvent("redrawCanvas");
   }
-  
+  function clearCurrentLayer()
+  {
+    props.changeOneTimeEvent("clearActiveLayers");
+  }
   
   return <PanelWrapper>Layers, color picker, etc
     <ColorPicker color={props.color} onColorChange={props.onColorChange} />
@@ -86,9 +89,16 @@ export default function RightPanel(props)
     <button onClick={(e) => opacityUp()}>
       Opacity Up for layers {props.activeLayers}
     </button>
+    
     <br />
+    
     <button onClick={(e) => opacityDown()}>
-    Opacity Down for layers {props.activeLayers}
+      Opacity Down for layers {props.activeLayers}
+    </button>
+    <br />
+    
+    <button onClick={(e) => clearCurrentLayer()}>
+      Clear Layers {props.activeLayers}
     </button>
     
   </PanelWrapper>;

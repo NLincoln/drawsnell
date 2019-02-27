@@ -6,11 +6,10 @@ const CANVAS_SIZE_X = 40; // 40 "fake" pixels
 const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
-/* We can move these functions to another file if necessary */
 ///////////////////////////////////////////////////////////////////////////////////////////
-function getcolor(R, G, B, A) {
-  return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
-}
+// function getcolor(R, G, B, A) {
+//   return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
+// }
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -55,7 +54,7 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
 }
 
 // this updates the values of layers but does not redraw the canvas!
-function updateLayerAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
+function updateLayersAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
 {
   if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
   {
@@ -67,6 +66,26 @@ function updateLayerAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
       mainComp.layers[ind].pixelData[x][y].g = g;
       mainComp.layers[ind].pixelData[x][y].b = b;
       mainComp.layers[ind].pixelData[x][y].a = a;
+    }
+  }
+}
+
+// this overwrites the contents of the given layers and replaces them with the specified color
+// it also doesn't redraw the canvas
+function updateLayersWithColor(mainComp, activeLayers, r, g, b, a)
+{
+  for(let x = 0; x < CANVAS_SIZE_X; x++)
+  {
+    for(let y = 0; y < CANVAS_SIZE_Y; y++)
+    {
+      for(let ii = 0; ii < activeLayers.length; ii++)
+      {
+        let ind = activeLayers[ii];
+        mainComp.layers[ind].pixelData[x][y].r = r;
+        mainComp.layers[ind].pixelData[x][y].g = g;
+        mainComp.layers[ind].pixelData[x][y].b = b;
+        mainComp.layers[ind].pixelData[x][y].a = a;
+      }
     }
   }
 }
@@ -84,10 +103,10 @@ function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, dr
     for (let point of pointsToFill) {
       if (tool === TOOLS.erase) 
       {
-        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, 255, 255, 255, 0);
+        updateLayersAtCoordWithColor(mainComp, activeLayers, point.x, point.y, 255, 255, 255, 0);
       } else if (tool === TOOLS.draw) 
       {
-        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+        updateLayersAtCoordWithColor(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
       }
     }
   } 
@@ -177,6 +196,11 @@ function usePseudoCanvas() {
       });
     },
 
+    /* clears the activeLayers to be transparent pixels RGBA(255, 255, 255, 0.0) */
+    clearActiveLayers(mainComp, activeLayers)
+    {
+      updateLayersWithColor(mainComp, activeLayers, 255, 255, 255, 0);
+    },
     /**
      * Interact with both canvases imperatively. You must provide a
      * callback that can handle both the fake canvas and the real one.
@@ -230,7 +254,6 @@ function getBackgroundColorForPixelRGBA({ x, y }) {
     if (yIsOdd) {
       return COLOR_B;
     } else {
-      // window.alert("a")
       return COLOR_A;
     }
   }
@@ -269,22 +292,25 @@ export default function Canvas(props) {
   
   ///////////////////////////////////////////
   //// code for one-time only events ////////
-  ///////////////////////////////////////////  
-  
-  if(props.oneTimeEvent == "redrawCanvas")
+  ///////////////////////////////////////////
+  if(props.oneTimeEvent != null)
   {
-    // window.alert("yo");
-    let ctx = canvas.real().getContext("2d");
-    // window.alert(ctx);
-    canvas.compositeLayersForAllPixels(props.mainComp);
+    // let ctx = canvas.real().getContext("2d"); // just for reference in case we need it, this works
+    if(props.oneTimeEvent == "redrawCanvas")
+    {
+      canvas.compositeLayersForAllPixels(props.mainComp);
+    }
+    else if(props.oneTimeEvent == "clearActiveLayers")
+    {
+      updateLayersWithColor(props.mainComp, props.activeLayers, 255, 255, 255, 0);
+      canvas.compositeLayersForAllPixels(props.mainComp);
+    }
     props.changeOneTimeEvent(null);
   }
-  
-
   ///////////////////////////////////////////
   //// end code for one-time only events ////
   ///////////////////////////////////////////
-   
+  
   useEffect(() => {
     let { drawColor } = props;
     canvas.setColor(`rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`);
