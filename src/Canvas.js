@@ -54,25 +54,7 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
   context.fillStyle = oldColor;
 }
 
-// this updates the values of layers but does not redraw the canvas!
-function updateLayerAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
-{
-  if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
-  {
-    // need to get the actual color somehow!
-    for(let ii = 0; ii < activeLayers.length; ii++)
-    {
-      let ind = activeLayers[ii];
-      mainComp.layers[ind].pixelData[x][y].r = r;
-      mainComp.layers[ind].pixelData[x][y].g = g;
-      mainComp.layers[ind].pixelData[x][y].b = b;
-      mainComp.layers[ind].pixelData[x][y].a = a;
-    }
-  }
-}
-
-function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, drawColor) {
-  // window.alert(mainComp.layers[0].pixelData[0][0].r);
+function drawOnCanvas(event, prevEvent, canvas, tool) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
   let ctx = canvas.getContext("2d");
@@ -82,12 +64,14 @@ function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, dr
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if (tool === TOOLS.erase) 
-      {
-        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, 255, 255, 255, 0);
-      } else if (tool === TOOLS.draw) 
-      {
-        updateLayerAtCoordWithColor(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+      if (tool === TOOLS.erase) {
+        drawColorOnCanvasThenRestore(
+          ctx,
+          point,
+          getBackgroundColorForPixel(point)
+        );
+      } else if (tool === TOOLS.draw) {
+        ctx.fillRect(point.x, point.y, 1, 1);
       }
     }
   } 
@@ -207,17 +191,84 @@ function getBackgroundColorForPixel({ x, y }) {
       return COLOR_B;
     }
   } else {
-    if (yIsOdd) {
-      return COLOR_B;
-    } else {
-      return COLOR_A;
+    if (tool === TOOLS.erase) {
+      drawColorOnCanvasThenRestore(
+        ctx,
+        position,
+        getBackgroundColorForPixel(position)
+      );
+    } else if (tool === TOOLS.draw) {
+      ctx.fillRect(position.x, position.y, 1, 1);
     }
   }
 }
 
-function getBackgroundColorForPixelRGBA({ x, y }) {
-  let COLOR_A = [211, 211, 211, 1.0];
-  let COLOR_B = [169, 169, 169, 1.0];
+function usePseudoCanvas() {
+  let realCanvasRef = useRef(null);
+  let fakeCanvasRef = useRef(null);
+
+  return {
+    ref: realCanvasRef,
+    fakeRef: fakeCanvasRef,
+
+    real() {
+      return realCanvasRef.current;
+    },
+    fake() {
+      return fakeCanvasRef.current;
+    },
+
+    /**
+     * Draw on both canvases using the mouse events
+     * @param {MouseEvent} event
+     * @param {MouseEvent} prevEvent
+     */
+    drawEvent(event, prevEvent, tool) {
+      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool));
+    },
+
+    /**
+     * Draws the color of a single pixel on the canvas
+     */
+    draw({ x, y }) {
+      this.interact(canvas => {
+        let ctx = canvas.getContext("2d");
+        ctx.fillRect(x, y, 1, 1);
+      });
+    },
+
+    /**
+     * Sets the color of both canvases
+     * @param {string} color
+     */
+    setColor(color) {
+      this.interact(canvas => {
+        let ctx = canvas.getContext("2d");
+        ctx.fillStyle = color;
+      });
+    },
+
+    /**
+     * Interact with both canvases imperatively. You must provide a
+     * callback that can handle both the fake canvas and the real one.
+     *
+     * This is a fairly low-level api.
+     */
+    interact(cb) {
+      cb(realCanvasRef.current);
+      cb(fakeCanvasRef.current);
+    }
+  };
+}
+
+/**
+ * Our canvas should have a transparent background. This function
+ * will return what the background color should be for a given
+ * pixel on the canvas.
+ */
+function getBackgroundColorForPixel({ x, y }) {
+  let COLOR_A = "grey";
+  let COLOR_B = "darkgrey";
   let xIsOdd = x % 2 == 1;
   let yIsOdd = y % 2 == 1;
   if (xIsOdd) {
@@ -230,7 +281,6 @@ function getBackgroundColorForPixelRGBA({ x, y }) {
     if (yIsOdd) {
       return COLOR_B;
     } else {
-      // window.alert("a")
       return COLOR_A;
     }
   }
@@ -243,7 +293,7 @@ export default function Canvas(props) {
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
-    canvas.drawEvent(event, null, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
+    canvas.drawEvent(event, null, props.currentTool);
     setIsDragging(true);
     event.persist();
     previousMouseEvent.current = event;
@@ -254,7 +304,7 @@ export default function Canvas(props) {
   };
   const handleMouseMove = event => {
     if (isDragging) {
-      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
+      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool);
       event.persist();
       previousMouseEvent.current = event;
     }
@@ -287,23 +337,20 @@ export default function Canvas(props) {
    
   useEffect(() => {
     let { drawColor } = props;
-    canvas.setColor(`rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`);
+    canvas.setColor(`rgb(${drawColor.r},${drawColor.g}, ${drawColor.b})`);
   }, [props.drawColor]);
 
-  // draw the transparency grid on the background (at layer index 0)
+  // draw the transparency grid on the background
   useEffect(() => {
     let ctx = canvas.real().getContext("2d");
     let oldColor = ctx.fillStyle;
-    for (let y = 0; y < CANVAS_SIZE_Y; ++y) {
-      for (let x = 0; x < CANVAS_SIZE_X; ++x) {
-        let gg = getBackgroundColorForPixelRGBA({x, y});
-        props.mainComp.layers[0].pixelData[x][y].r = gg[0];
-        props.mainComp.layers[0].pixelData[x][y].g = gg[1];
-        props.mainComp.layers[0].pixelData[x][y].b = gg[2];
-        props.mainComp.layers[0].pixelData[x][y].a = gg[3];
+    for (let y = 0; y < CANVAS_SIZE; ++y) {
+      for (let x = 0; x < CANVAS_SIZE; ++x) {
+        ctx.fillStyle = getBackgroundColorForPixel({ x, y });
+        ctx.fillRect(x, y, 1, 1);
       }
     }
-    canvas.compositeLayersForAllPixels(props.mainComp);
+
     ctx.fillStyle = oldColor;
   }, []);
 
@@ -315,16 +362,16 @@ export default function Canvas(props) {
           hidden={true}
           id={"hidden-canvas"}
           style={{ border: "2px solid black" }}
-          width={String(CANVAS_SIZE_X * TILE_SIZE)}
-          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
+          width={String(CANVAS_SIZE * TILE_SIZE)}
+          height={String(CANVAS_SIZE * TILE_SIZE)}
           ref={canvas.fakeRef}
         />
 
         <canvas
           id={"canvas"}
           style={{ border: "2px solid black" }}
-          width={String(CANVAS_SIZE_X * TILE_SIZE)}
-          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
+          width={String(CANVAS_SIZE * TILE_SIZE)}
+          height={String(CANVAS_SIZE * TILE_SIZE)}
           ref={canvas.ref}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
