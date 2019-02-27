@@ -6,3 +6,7 @@
 2. Install yarn: https://yarnpkg.com/en/docs/install#windows-stable
 3. Open cmd or powershell in the project folder (the same folder containing this readme) and type: npm install
 4. To start it, type: npm start
+
+
+**Git help:**
+Branching: https://stackoverflow.com/questions/3876977/update-git-branches-from-master
