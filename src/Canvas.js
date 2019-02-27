@@ -13,10 +13,6 @@ function getcolor(R, G, B, A) {
 
 function getColorFromImageData(imgData)
 {
-  console.log("red " + imgData.data[0]);
-  console.log("green " + imgData.data[1]);
-  console.log("blue " + imgData.data[2]);
-  console.log("alpha " + imgData.data[3]);
   return getcolor(imgData.data[0], imgData.data[1], 
     imgData.data[2], imgData.data[3]);
 }
@@ -79,33 +75,47 @@ function fillTool(event, canvas)
   //let ctx = canvas.getContext("2d");
   //let oldColor = tmp.data[0];
   let pixelStack = [[position.x, position.y]]; // x and y coords of clicked location
-  let color = getColorFromImageData(ctx.getImageData(position.x, position.y,1,1));
+  let color = getColorFromImageData(ctx.getImageData(position.x*TILE_SIZE, position.y*TILE_SIZE,1,1));
+  let canvasWidth = canvas.width / TILE_SIZE;
+  let canvasHeight = canvas.height / TILE_SIZE;
+/*   console.log("old color is: " + color);
+  console.log("startY: " + position.y);
+  console.log(canvas.height);
+  console.log(canvas.width); */
   while(pixelStack.length)
   {
+    console.log("Pixelstack size: "+ pixelStack.length);
     let newPos = pixelStack.pop();
     let newX = newPos[0];
     let newY = newPos[1];
+    let locatorY = newY * TILE_SIZE;
+    let locatorX = newX * TILE_SIZE;
     let leftFill, rightFill;
-    let currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+    let currentTileColor = getColorFromImageData(ctx.getImageData(locatorX,locatorY,1,1));
+    // console.log("pre loop currentTIle: " + currentTileColor);
     while(newY-- >= 0 && currentTileColor===color)
     {
-      currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+      locatorY -= TILE_SIZE; 
+      currentTileColor = getColorFromImageData(ctx.getImageData(locatorX,locatorY,1,1));
+      // console.log("in loop currentTile: " + currentTileColor);
     }
     ++newY;
-    currentTileColor = getColorFromImageData(ctx.getImageData(newX,newY,1,1));
+    locatorY += TILE_SIZE;
+    currentTileColor = getColorFromImageData(ctx.getImageData(locatorX,locatorY,1,1));
     leftFill = false;
     rightFill = false;
-console.log("before fill while");
-    while(newY++ < ctx.height-1 && currentTileColor===color)
+
+    while(newY++ < canvasHeight-1 && currentTileColor===color)
     {
-      console.log("in fill while");
+      currentTileColor = getColorFromImageData(ctx.getImageData(locatorX,locatorY,1,1));
+     
       ctx.fillRect(newX, newY, 1, 1);
 
       // Checking left tiles
       if(newX > 0)
       {
         // Check to see if left tile needs to be filled eventually
-        if(getColorFromImageData(ctx.getImageData(newX-1,newY,1,1))===color)
+        if(getColorFromImageData(ctx.getImageData(locatorX-TILE_SIZE,locatorY,1,1))===color)
         {
           // If that column is not marked for filling
           if(!leftFill)
@@ -122,10 +132,10 @@ console.log("before fill while");
       }
 
       // Checking right tiles
-      if(newX < ctx.width-1)
+      if(newX < canvasWidth-1)
       {
         // If the right tile is the color to be filled
-        if(getColorFromImageData(ctx.getImageData(newX+1,newY,1,1,)) === color)
+        if(getColorFromImageData(ctx.getImageData(locatorX+TILE_SIZE,locatorY,1,1,)) === color)
         {
           // If that column is not marked for filling
           if(!rightFill)
@@ -139,6 +149,8 @@ console.log("before fill while");
           rightFill = false;
         }
       }
+
+      locatorY += TILE_SIZE;
     } // End fill while
     
     
@@ -165,12 +177,6 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
       } else if (tool === TOOLS.draw) {
         ctx.fillRect(point.x, point.y, 1, 1);
       }
-      /* else if(tool === TOOLS.fill)
-      {
-        console.log("bres call");
-        let color = getColorFromImageData(ctx.getImageData(point.x, point.y, 1, 1));
-        fillTool(point.x, point.y, ctx, color);
-      } */
     }
   } else {
     if (tool === TOOLS.erase) {
@@ -182,13 +188,6 @@ function drawOnCanvas(event, prevEvent, canvas, tool) {
     } else if (tool === TOOLS.draw) {
       ctx.fillRect(position.x, position.y, 1, 1);
     }
-    /* else if(tool === TOOLS.fill)
-    {
-      console.log('calling');
-      let tmp = ctx.getImageData(position.x,position.y,1,1);
-      let color = "rgb(" + tmp.data[0] + ", " + tmp.data[1] + ", " + tmp.data[2] + ", " + tmp.data[3] + ")";
-      fillTool(position.x, position.y, ctx, color);
-    } */
   }
 }
 
@@ -213,16 +212,12 @@ function usePseudoCanvas() {
      * @param {MouseEvent} prevEvent
      */
     drawEvent(event, prevEvent, tool) {
-      if(tool === TOOLS.fill)
-      {
-        this.interact(canvas => {
-          //let ctx = canvas.getContext("2d");
-          let position = getPositionOfEventOnElement(event);
-          position = getPixelCoordsInCanvas(position);
-          fillTool(event, canvas); 
-        });
-      }
       this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool));
+    },
+
+    fillEvent(event)
+    {
+      this.interact(canvas => fillTool(event, canvas));
     },
 
     /**
@@ -291,10 +286,19 @@ export default function Canvas(props) {
   let [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = event => {
-    
-    canvas.drawEvent(event, null, props.currentTool);
+    if(props.currentTool === TOOLS.fill)
+    {
+      canvas.fillEvent(event);
+    }
+    else
+    {
+      canvas.drawEvent(event, null, props.currentTool);
+      setIsDragging(true);
+      event.persist();
+    }
+    /* canvas.drawEvent(event, null, props.currentTool);
     setIsDragging(true);
-    event.persist();
+    event.persist(); */
     previousMouseEvent.current = event;
   };
   const handleMouseUp = event => {
