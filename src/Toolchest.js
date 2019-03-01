@@ -33,10 +33,10 @@ export default function Toolchest(props) {
     } >
     Eraser <
     /button> <
-    div class = "radiusSlider" >
+  div class = "radiusSlider" >
     <
     p > Radius: < /p> <
-    input type = "number"
+  input type = "number"
   id = "radius"
   min = "1"
   max = "100"
@@ -46,7 +46,7 @@ export default function Toolchest(props) {
       updateRadius
     } >
     Submit <
-    /button> <
-    /div> <
+    /button> < /
+    div > <
     /SidebarWrapper>;
 }

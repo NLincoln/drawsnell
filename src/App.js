@@ -80,7 +80,8 @@ export default function App() {
     GridArea area = {
       "canvas"
     } > {
-      /* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */ } <
+      /* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */
+    } <
     Canvas drawColor = {
       color
     }
@@ -105,8 +106,8 @@ export default function App() {
     radius = {
       radius
     }
-    /> <
-    /GridArea> <
+    /> < /
+    GridArea > <
     GridArea area = {
       "toolchest"
     } >
@@ -120,8 +121,8 @@ export default function App() {
     setRadius = {
       setRadius
     }
-    /> <
-    /GridArea> <
+    /> < /
+    GridArea > <
     GridArea area = {
       "right-panel"
     } >
@@ -147,8 +148,8 @@ export default function App() {
     changeActiveLayers = {
       changeActiveLayers
     }
-    /> <
-    /GridArea>
+    /> < /
+    GridArea >
 
     {
       /* <GridArea area={"colorpicker"}>
