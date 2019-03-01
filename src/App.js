@@ -79,35 +79,19 @@ export default function App() {
     /GridArea> <
     GridArea area = {
       "canvas"
-    } > {
-      /* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */
-    } <
+    } >
+    <
     Canvas drawColor = {
       color
     }
     currentTool = {
       currentTool
     }
-    mainComp = {
-      mainComp
-    }
-    oneTimeEvent = {
-      oneTimeEvent
-    }
-    changeOneTimeEvent = {
-      changeOneTimeEvent
-    }
-    activeLayers = {
-      activeLayers
-    }
-    changeActiveLayers = {
-      changeActiveLayers
-    }
     radius = {
       radius
     }
-    /> < /
-    GridArea > <
+    /> <
+    /GridArea> <
     GridArea area = {
       "toolchest"
     } >
@@ -121,8 +105,8 @@ export default function App() {
     setRadius = {
       setRadius
     }
-    /> < /
-    GridArea > <
+    /> <
+    /GridArea> <
     GridArea area = {
       "right-panel"
     } >
@@ -133,23 +117,8 @@ export default function App() {
     onColorChange = {
       setColor
     }
-    mainComp = {
-      mainComp
-    }
-    oneTimeEvent = {
-      oneTimeEvent
-    }
-    changeOneTimeEvent = {
-      changeOneTimeEvent
-    }
-    activeLayers = {
-      activeLayers
-    }
-    changeActiveLayers = {
-      changeActiveLayers
-    }
-    /> < /
-    GridArea >
+    /> <
+    /GridArea>
 
     {
       /* <GridArea area={"colorpicker"}>
