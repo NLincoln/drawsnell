@@ -58,7 +58,7 @@ function getPixelCoordsInCanvas({
 function drawColorOnCanvasThenRestore(context, {
   x,
   y
-}, color) {
+}, color, radius) {
   let oldColor = context.fillStyle;
   const diameter = radius * 2 - 1;
   context.fillStyle = color;
@@ -68,7 +68,7 @@ function drawColorOnCanvasThenRestore(context, {
 
 // this updates the values of layers but does not redraw the canvas!
 function updateLayersAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a, radius) {
-  if (x >= radius - 1 && x < CANVAS_SIZE_X - (radius - 1) && y >= radius - 1 && y < CANVAS_SIZE_Y - (radius - 1)) {
+  if (x >= radius - 1 && x < CANVAS_SIZE_X - radius && y >= radius - 1 && y < CANVAS_SIZE_Y - radius) {
     // Fills in tiles in a specific radius around the central point.
     for (let curY = y - (radius - 1); curY < y + radius; curY++) {
       for (let curX = x - (radius - 1); curX < x + radius; curX++) {
