@@ -20,7 +20,7 @@ export default function Toolchest(props) {
   };
 
   function updateRadius() {
-    const value = document.getElementById("radius").value;
+    const value = parseInt(document.getElementById("radius").value);
     props.setRadius(value);
   }
 
