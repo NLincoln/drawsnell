@@ -189,6 +189,7 @@ function usePseudoCanvas() {
             let aa = myLayer.pixelData[xx][yy].a;
             // ctx.fillStyle = getBackgroundColorForPixel({ xx, yy });
             ctx.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${aa})`;
+            ctx.clearRect(xx, yy, 1, 1);
             ctx.fillRect(xx, yy, 1, 1);
           }
         }
