@@ -49,12 +49,12 @@ export default function App() {
       root.style.cursor = "alias"; // Placeholder
     } 
     else if(tool === TOOLS.fill)
-    {
       root.style.cursor = "crosshair"; // Placeholder
-    }
-    else {
-      root.style.cursor = "default";
-    }
+    else if(tool === TOOLS.select)
+      root.style.cursor = "cell"; // Placeholder 
+    else
+      root.style.cursor = "default"; // Placeholder
+    
     setCurrentTool(tool);
   };
 
