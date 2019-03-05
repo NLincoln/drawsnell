@@ -73,7 +73,7 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
     let newX = newPos[0];
     let newY = newPos[1];
     let currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
-
+    let leftFill, rightFill;
     while(newY >= 0 && currentTileColor===color)
     { 
       if(newY >= 0)
@@ -99,7 +99,7 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
       if(newX > 0)
       {
         
-        // Check to see if left tile needs to be filled eventually
+        // Check to see if left tile is color that needs to be filled
         let checkLeft = (getColorAtLayerCoord(mainComp, activeLayers, newX-1,newY));
         if(checkLeft===color)
         {
