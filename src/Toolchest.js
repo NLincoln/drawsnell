@@ -21,8 +21,10 @@ export default function Toolchest(props) {
   return (
     <SidebarWrapper>
       Tools, etc, etc
+      <button onClick={() => toggleTool(TOOLS.draw)}>Draw</button>
       <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
       <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
+      <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
     </SidebarWrapper>
   );
 }

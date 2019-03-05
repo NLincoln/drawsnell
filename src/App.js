@@ -46,10 +46,15 @@ export default function App() {
     if (tool === TOOLS.erase) {
       // Make it a pictue located at url
       // root.style.cursor = "url('')"
-      root.style.cursor = "wait"; // Placeholder
-    } else {
-      root.style.cursor = "default";
-    }
+      root.style.cursor = "alias"; // Placeholder
+    } 
+    else if(tool === TOOLS.fill)
+      root.style.cursor = "crosshair"; // Placeholder
+    else if(tool === TOOLS.select)
+      root.style.cursor = "cell"; // Placeholder 
+    else
+      root.style.cursor = "default"; // Placeholder
+    
     setCurrentTool(tool);
   };
 
