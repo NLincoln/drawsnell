@@ -72,7 +72,7 @@ class composition //extends React.Component
   // returns the layer corresponding to what's actually displayed
   // this is what you see when all layers are on top of each other
   // when x and y are null, composite all layers for ALL pixels
-  // when x and y are integers, composite only for a single pixel
+  // when x and y are integers, composite only for a single pixel (NOT YET IMPLEMENTED)
   getComposite(x = null, y = null)
   {
     // baselayer needs to be a deep copy of the real base layer
@@ -106,12 +106,17 @@ class composition //extends React.Component
           let j = 0;
           n == 0 ? j = 0 : j = ch/n;
           
+          // I had to add this part myself, it was not in flrs' blend code
+          // make sure the blend layer's colors still show up when the baseLayer's alpha is zero!
+          // this will be necessary when saving images as png with an alpha channel
+          a < 0.001 ? j = 1 : j = j;
+          
           // now apply the alpha channelwise (rgb wise)
           // need to be between 0 and 255, and integers, so round
           baselayer.pixelData[xx][yy]['r'] = Math.round(blendLayer.pixelData[xx][yy]['r']*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
           baselayer.pixelData[xx][yy]['g'] = Math.round(blendLayer.pixelData[xx][yy]['g']*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
           baselayer.pixelData[xx][yy]['b'] = Math.round(blendLayer.pixelData[xx][yy]['b']*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
-          baselayer.pixelData[xx][yy]['a'] = a;
+          baselayer.pixelData[xx][yy]['a'] = a + b*blendLayer.opacity - a*b*blendLayer.opacity; // https://stackoverflow.com/a/21492544
         }
       }
     }
