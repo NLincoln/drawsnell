@@ -6,12 +6,6 @@ const CANVAS_SIZE_X = 40; // 40 "fake" pixels
 const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
 
-///////////////////////////////////////////////////////////////////////////////////////////
-// function getcolor(R, G, B, A) {
-//   return "rgb(" + R + ", " + G + ", " + B + ", " + A + ")";
-// }
-///////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * So normal events have two things:
  * 1. Where the event occurred _on the page_
@@ -46,6 +40,14 @@ function getPixelCoordsInCanvas({ x, y }) {
   };
 }
 
+/**
+ * Shorthand for getPositionOfEventOnElement > getPixelCoordsInCanvas
+ * @param {MouseEvent} event
+ */
+function getPixelCoordsOfEvent(event) {
+  return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
+}
+
 function drawColorOnCanvasThenRestore(context, { x, y }, color) {
   let oldColor = context.fillStyle;
   context.fillStyle = color;
@@ -54,13 +56,19 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color) {
 }
 
 // this updates the values of layers but does not redraw the canvas!
-function updateLayersAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
-{
-  if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
-  {
+function updateLayersAtCoordWithColor(
+  mainComp,
+  activeLayers,
+  x,
+  y,
+  r,
+  g,
+  b,
+  a
+) {
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
     // need to get the actual color somehow!
-    for(let ii = 0; ii < activeLayers.length; ii++)
-    {
+    for (let ii = 0; ii < activeLayers.length; ii++) {
       let ind = activeLayers[ii];
       mainComp.layers[ind].pixelData[x][y].r = r;
       mainComp.layers[ind].pixelData[x][y].g = g;
@@ -72,14 +80,10 @@ function updateLayersAtCoordWithColor(mainComp, activeLayers, x, y, r, g, b, a)
 
 // this overwrites the contents of the given layers and replaces them with the specified color
 // it also doesn't redraw the canvas
-function updateLayersWithColor(mainComp, activeLayers, r, g, b, a)
-{
-  for(let x = 0; x < CANVAS_SIZE_X; x++)
-  {
-    for(let y = 0; y < CANVAS_SIZE_Y; y++)
-    {
-      for(let ii = 0; ii < activeLayers.length; ii++)
-      {
+function updateLayersWithColor(mainComp, activeLayers, r, g, b, a) {
+  for (let x = 0; x < CANVAS_SIZE_X; x++) {
+    for (let y = 0; y < CANVAS_SIZE_Y; y++) {
+      for (let ii = 0; ii < activeLayers.length; ii++) {
         let ind = activeLayers[ii];
         mainComp.layers[ind].pixelData[x][y].r = r;
         mainComp.layers[ind].pixelData[x][y].g = g;
@@ -90,43 +94,63 @@ function updateLayersWithColor(mainComp, activeLayers, r, g, b, a)
   }
 }
 
-function drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, drawColor) {
-  // window.alert(mainComp.layers[0].pixelData[0][0].r);
-  let position = getPositionOfEventOnElement(event);
-  position = getPixelCoordsInCanvas(position);
+/**
+ * @param {MouseEvent} event
+ * @param {MouseEvent|null} prevEvent
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} tool
+ */
+function drawOnCanvas(
+  event,
+  prevEvent,
+  canvas,
+  tool,
+  mainComp,
+  activeLayers,
+  drawColor
+) {
+  let position = getPixelCoordsOfEvent(event);
   let ctx = canvas.getContext("2d");
   if (prevEvent) {
-    let prevPosition = getPositionOfEventOnElement(prevEvent);
-    prevPosition = getPixelCoordsInCanvas(prevPosition);
+    let prevPosition = getPixelCoordsOfEvent(prevEvent);
 
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
-      if (tool === TOOLS.erase) 
-      {
-        updateLayersAtCoordWithColor(mainComp, activeLayers, point.x, point.y, 255, 255, 255, 0);
-      } else if (tool === TOOLS.draw) 
-      {
-        updateLayersAtCoordWithColor(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+      if (tool === TOOLS.erase) {
+        updateLayersAtCoordWithColor(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          255,
+          255,
+          255,
+          0
+        );
+      } else if (tool === TOOLS.draw) {
+        updateLayersAtCoordWithColor(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          drawColor.r,
+          drawColor.g,
+          drawColor.b,
+          drawColor.a
+        );
       }
     }
-  } 
-  else 
-  { // what is this doing?
-    // if (tool === TOOLS.erase) {
-    //   drawColorOnCanvasThenRestore(
-    //     ctx,
-    //     position,
-    //     getBackgroundColorForPixel(position)
-    //   );
-    // } else if (tool === TOOLS.draw) {
-    //   ctx.fillRect(position.x, position.y, 1, 1);
-    // }
+  } else {
+    // todo: re-handle case where the canvas is clicked, not dragged
   }
 }
 
-function usePseudoCanvas() {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
   let realCanvasRef = useRef(null);
   let fakeCanvasRef = useRef(null);
+  let [selection, setSelection] = useState(null);
+  let previousMouseEvent = useRef(null);
+  let [isDragging, setIsDragging] = useState(false);
 
   return {
     ref: realCanvasRef,
@@ -139,13 +163,70 @@ function usePseudoCanvas() {
       return fakeCanvasRef.current;
     },
 
+    eventHandlers() {
+      return {
+        onMouseDown: event => {
+          setIsDragging(true);
+          event.persist();
+          previousMouseEvent.current = event;
+          if (currentTool === TOOLS.select) {
+            this.beginSelection(event);
+          } else {
+            this.drawEvent(
+              event,
+              null,
+              currentTool,
+              mainComp,
+              activeLayers,
+              drawColor
+            );
+          }
+        },
+        onMouseMove: event => {
+          if (!isDragging) {
+            return;
+          }
+          if (currentTool === TOOLS.select) {
+            this.adjustSelection(event);
+          } else {
+            this.drawEvent(
+              event,
+              previousMouseEvent.current,
+              currentTool,
+              mainComp,
+              activeLayers,
+              drawColor
+            );
+          }
+          event.persist();
+          previousMouseEvent.current = event;
+        },
+        onMouseUp: event => {
+          setIsDragging(false);
+          previousMouseEvent.current = null;
+        },
+        onMouseLeave: event => {}
+      };
+    },
+
     /**
      * Draw on both canvases using the mouse events
      * @param {MouseEvent} event
      * @param {MouseEvent} prevEvent
+     * @param {string} tool
      */
     drawEvent(event, prevEvent, tool, mainComp, activeLayers, drawColor) {
-      this.interact(canvas => drawOnCanvas(event, prevEvent, canvas, tool, mainComp, activeLayers, drawColor));
+      this.interact(canvas =>
+        drawOnCanvas(
+          event,
+          prevEvent,
+          canvas,
+          tool,
+          mainComp,
+          activeLayers,
+          drawColor
+        )
+      );
       this.compositeLayersForAllPixels(mainComp); // actually make all the changes to the layer visible
     },
 
@@ -169,20 +250,16 @@ function usePseudoCanvas() {
         ctx.fillStyle = color;
       });
     },
-    
+
     /* Fills the canvas with the current contents of the layer structure */
-    compositeLayersForAllPixels(mainComp)
-    {
+    compositeLayersForAllPixels(mainComp) {
       // window.alert("called composite all layers!");
       this.interact(canvas => {
         let ctx = canvas.getContext("2d");
         let oldColor = ctx.fillStyle;
-        // window.alert(mainComp.layers[0].pixelData[0][0].r);
         let myLayer = mainComp.getComposite();
-        for (let yy = 0; yy < CANVAS_SIZE_Y; ++yy) 
-        {
-          for (let xx = 0; xx < CANVAS_SIZE_X; ++xx) 
-          {
+        for (let yy = 0; yy < CANVAS_SIZE_Y; ++yy) {
+          for (let xx = 0; xx < CANVAS_SIZE_X; ++xx) {
             let rr = myLayer.pixelData[xx][yy].r;
             let gg = myLayer.pixelData[xx][yy].g;
             let bb = myLayer.pixelData[xx][yy].b;
@@ -198,8 +275,7 @@ function usePseudoCanvas() {
     },
 
     /* clears the activeLayers to be transparent pixels RGBA(255, 255, 255, 0.0) */
-    clearActiveLayers(mainComp, activeLayers)
-    {
+    clearActiveLayers(mainComp, activeLayers) {
       updateLayersWithColor(mainComp, activeLayers, 255, 255, 255, 0);
     },
     /**
@@ -211,6 +287,34 @@ function usePseudoCanvas() {
     interact(cb) {
       cb(realCanvasRef.current);
       cb(fakeCanvasRef.current);
+    },
+
+    /**
+     * Returns the current selection,
+     * or none if there isn't anything selected.
+     */
+    selection() {
+      return selection;
+    },
+
+    /**
+     *
+     * @param {MouseEvent} event
+     */
+    beginSelection(event) {
+      let position = getPixelCoordsOfEvent(event);
+      setSelection({
+        origin: position,
+        destination: position
+      });
+    },
+
+    adjustSelection(event) {
+      let position = getPixelCoordsOfEvent(event);
+      setSelection(prev => ({
+        origin: prev.origin,
+        destination: position
+      }));
     }
   };
 }
@@ -221,10 +325,10 @@ function usePseudoCanvas() {
  * pixel on the canvas.
  */
 function getBackgroundColorForPixel({ x, y }) {
-  let COLOR_A = "lightgrey";
-  let COLOR_B = "darkgrey";
-  let xIsOdd = x % 2 == 1;
-  let yIsOdd = y % 2 == 1;
+  let COLOR_A = "gainsboro";
+  let COLOR_B = "silver";
+  let xIsOdd = x % 2 === 1;
+  let yIsOdd = y % 2 === 1;
   if (xIsOdd) {
     if (yIsOdd) {
       return COLOR_A;
@@ -260,50 +364,81 @@ function getBackgroundColorForPixelRGBA({ x, y }) {
   }
 }
 
+function SelectedCanvas(props) {
+  // really just returns a canvas that is transparent save for a box detailing
+  // the selection
+  let { selection, canvas } = props;
+  let ref = useRef(null);
+  let { origin, destination } = selection;
+
+  React.useLayoutEffect(() => {
+    let canvas = ref.current;
+    let ctx = canvas.getContext("2d");
+    ctx.scale(TILE_SIZE, TILE_SIZE);
+  }, []);
+
+  React.useLayoutEffect(() => {
+    let canvas = ref.current;
+    let ctx = canvas.getContext("2d");
+    ctx.fillStyle = "black";
+    let width = Math.abs(origin.x - destination.x);
+    let height = Math.abs(origin.y - destination.y);
+    let top = Math.min(origin.y, destination.y);
+    let left = Math.min(origin.x, destination.x);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // So strokeRect exists, but the selection is slightly off.
+    // instead, I'm going to do this the hacky way: fill a black rectangle
+    // then clear the inside
+    ctx.fillRect(left, top, width, height);
+    ctx.clearRect(left + 1, top + 1, width - 2, height - 2);
+  }, [origin, destination]);
+
+  return (
+    <canvas
+      ref={ref}
+      width={String(CANVAS_SIZE_X * TILE_SIZE)}
+      height={String(CANVAS_SIZE_Y * TILE_SIZE)}
+      style={{
+        border: "2px solid black",
+        position: "absolute",
+        zIndex: "2"
+      }}
+      {...canvas.eventHandlers()}
+    />
+  );
+}
+
 export default function Canvas(props) {
-  let canvas = usePseudoCanvas();
+  let canvas = usePseudoCanvas({
+    currentTool: props.currentTool,
+    mainComp: props.mainComp,
+    activeLayers: props.activeLayers,
+    drawColor: props.drawColor
+  });
 
-  let previousMouseEvent = useRef(null);
-  let [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseDown = event => {
-    canvas.drawEvent(event, null, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
-    setIsDragging(true);
-    event.persist();
-    previousMouseEvent.current = event;
-  };
-  const handleMouseUp = event => {
-    setIsDragging(false);
-    previousMouseEvent.current = null;
-  };
-  const handleMouseMove = event => {
-    if (isDragging) {
-      canvas.drawEvent(event, previousMouseEvent.current, props.currentTool, props.mainComp, props.activeLayers, props.drawColor);
-      event.persist();
-      previousMouseEvent.current = event;
-    }
-  };
-  
   useEffect(() => {
     canvas.interact(canvas => {
       let ctx = canvas.getContext("2d");
       ctx.scale(TILE_SIZE, TILE_SIZE);
     });
   }, []);
-  
+
   ///////////////////////////////////////////
   //// code for one-time only events ////////
   ///////////////////////////////////////////
-  if(props.oneTimeEvent != null)
-  {
+  if (props.oneTimeEvent != null) {
     // let ctx = canvas.real().getContext("2d"); // just for reference in case we need it, this works
-    if(props.oneTimeEvent == "redrawCanvas")
-    {
+    if (props.oneTimeEvent == "redrawCanvas") {
       canvas.compositeLayersForAllPixels(props.mainComp);
-    }
-    else if(props.oneTimeEvent == "clearActiveLayers")
-    {
-      updateLayersWithColor(props.mainComp, props.activeLayers, 255, 255, 255, 0);
+    } else if (props.oneTimeEvent == "clearActiveLayers") {
+      updateLayersWithColor(
+        props.mainComp,
+        props.activeLayers,
+        255,
+        255,
+        255,
+        0
+      );
       canvas.compositeLayersForAllPixels(props.mainComp);
     }
     props.changeOneTimeEvent(null);
@@ -311,10 +446,12 @@ export default function Canvas(props) {
   ///////////////////////////////////////////
   //// end code for one-time only events ////
   ///////////////////////////////////////////
-  
+
   useEffect(() => {
     let { drawColor } = props;
-    canvas.setColor(`rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`);
+    canvas.setColor(
+      `rgba(${drawColor.r},${drawColor.g}, ${drawColor.b}, ${drawColor.a})`
+    );
   }, [props.drawColor]);
 
   // draw the transparency grid on the background (at layer index 0)
@@ -323,7 +460,7 @@ export default function Canvas(props) {
     let oldColor = ctx.fillStyle;
     for (let y = 0; y < CANVAS_SIZE_Y; ++y) {
       for (let x = 0; x < CANVAS_SIZE_X; ++x) {
-        let gg = getBackgroundColorForPixelRGBA({x, y});
+        let gg = getBackgroundColorForPixelRGBA({ x, y });
         props.mainComp.layers[0].pixelData[x][y].r = gg[0];
         props.mainComp.layers[0].pixelData[x][y].g = gg[1];
         props.mainComp.layers[0].pixelData[x][y].b = gg[2];
@@ -334,29 +471,37 @@ export default function Canvas(props) {
     ctx.fillStyle = oldColor;
   }, []);
 
+  let selection = canvas.selection();
+
   return (
     <>
-      <div>
-        <canvas id={"hidden-canvas"} hidden={true} ref={canvas.fakeRef} />
+      <div style={{ position: "relative" }}>
         <canvas
           hidden={true}
           id={"hidden-canvas"}
           style={{ border: "2px solid black" }}
           width={String(CANVAS_SIZE_X * TILE_SIZE)}
           height={String(CANVAS_SIZE_Y * TILE_SIZE)}
+          width={String(CANVAS_SIZE_X * TILE_SIZE)}
+          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           ref={canvas.fakeRef}
         />
-
         <canvas
           id={"canvas"}
           style={{ border: "2px solid black" }}
           width={String(CANVAS_SIZE_X * TILE_SIZE)}
           height={String(CANVAS_SIZE_Y * TILE_SIZE)}
+          style={{
+            border: "2px solid black",
+            position: "absolute",
+            zIndex: "1"
+          }}
+          width={String(CANVAS_SIZE_X * TILE_SIZE)}
+          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           ref={canvas.ref}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
+          {...canvas.eventHandlers()}
         />
+        {selection && <SelectedCanvas canvas={canvas} selection={selection} />}
       </div>
     </>
   );
