@@ -61,7 +61,7 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
 
-  let pixelStack = [[position.x, position.y]]; // x and y coords of clicked location
+  let pixelStack = [[position.x, position.y]]; 
   let color = getColorAtLayerCoord(mainComp, activeLayers, position.x, position.y);
   let canvasWidth = canvas.width / TILE_SIZE;
   let canvasHeight = canvas.height / TILE_SIZE;
@@ -72,7 +72,6 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
     let newPos = pixelStack.pop();
     let newX = newPos[0];
     let newY = newPos[1];
-    let leftFill, rightFill;
     let currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
 
     while(newY >= 0 && currentTileColor===color)
@@ -92,7 +91,6 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
     leftFill = false;
     rightFill = false;
 
-    console.log("post loop current: " + currentTileColor);
     while(newY <= canvasHeight-1 && color !== pseudoFillColor && currentTileColor===color)
     {
       updateLayersAtCoordWithColor(mainComp, activeLayers, newX, newY, fillColor.r, fillColor.g, fillColor.b, fillColor.a);
