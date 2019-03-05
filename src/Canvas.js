@@ -171,11 +171,11 @@ function updateLayersAtCoordWithColor(
 function getColorAtLayerCoord(mainComp, activeLayers, x, y)
 {
   // Ensure all active layers share the same color at this point
-  let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
-  let dataToReturn;
   if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
   {
-    //
+    let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
+    let dataToReturn;
+  
     for(let ii = 0; ii < activeLayers.length; ii++)
     {
       let ind = activeLayers[ii];
@@ -185,8 +185,9 @@ function getColorAtLayerCoord(mainComp, activeLayers, x, y)
         return false;
       }
     }
+    return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
+
   }
-  return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
 }
 
 // this overwrites the contents of the given layers and replaces them with the specified color
