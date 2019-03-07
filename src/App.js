@@ -4,8 +4,7 @@ import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import Composition from "./layers";
-import { TOOLS, TOOL_CURSORS } from "./tools";
-
+import { TOOLS, useToolHandler } from "./tools";
 import styled from "@emotion/styled";
 
 const Grid = styled.div`
@@ -40,18 +39,8 @@ export default function App() {
   // the data structure holding all of the pixel and layer data
   let [mainComp, changeMainComp] = React.useState(initComposition);
   // the currently selected tool
-  let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
 
-  const onToolChange = tool => {
-    // Used to change the cursor style whenever currentTool gets updated
-    let root = document.getElementById("root");
-
-    let cursor = TOOL_CURSORS[tool] || "default";
-
-    root.style.cursor = cursor;
-
-    setCurrentTool(tool);
-  };
+  let [currentTool, onToolChange] = useToolHandler();
 
   let [color, setColor] = useState({
     r: "241",
