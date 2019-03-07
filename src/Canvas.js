@@ -99,7 +99,7 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
     rightFill = false;
 
     while (newY <= canvasHeight - 1 && color !== pseudoFillColor && currentTileColor === color) {
-      updateLayersAtCoordWithColor(mainComp, activeLayers, newX, newY, fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+      updateLayersAtCoordWithColor(mainComp, activeLayers, newX, newY, fillColor.r, fillColor.g, fillColor.b, fillColor.a, 1);
 
       // Checking left tiles
       if (newX > 0) {
