@@ -67,26 +67,26 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
   let canvasHeight = canvas.height / TILE_SIZE;
   let pseudoFillColor = "rgb(" + fillColor.r + ", " + fillColor.g + 
     ", " + fillColor.b + ", " + fillColor.a + ")";
-  let leftFill, rightFill;
   while(pixelStack.length && color !== pseudoFillColor)
   {
     let newPos = pixelStack.pop();
     let newX = newPos[0];
     let newY = newPos[1];
+    let leftFill, rightFill;
     let currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     while(newY >= 0 && currentTileColor===color)
     { 
+      newY-=1;
       if(newY >= 0)
         currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
         
-      newY-=1;
+      
     }
-    
-    if(newY < 0)
+    if(newY < -1)
       newY = 0;
     else
-      newY+=2;
-    
+      newY+=1;
+
     currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     leftFill = false;
     rightFill = false;
