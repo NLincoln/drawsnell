@@ -67,26 +67,26 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor)
   let canvasHeight = canvas.height / TILE_SIZE;
   let pseudoFillColor = "rgb(" + fillColor.r + ", " + fillColor.g + 
     ", " + fillColor.b + ", " + fillColor.a + ")";
-  let leftFill, rightFill;
   while(pixelStack.length && color !== pseudoFillColor)
   {
     let newPos = pixelStack.pop();
     let newX = newPos[0];
     let newY = newPos[1];
+    let leftFill, rightFill;
     let currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     while(newY >= 0 && currentTileColor===color)
     { 
+      newY-=1;
       if(newY >= 0)
         currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
         
-      newY-=1;
+      
     }
-    
-    if(newY < 0)
+    if(newY < -1)
       newY = 0;
     else
-      newY+=2;
-    
+      newY+=1;
+
     currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     leftFill = false;
     rightFill = false;
@@ -171,11 +171,11 @@ function updateLayersAtCoordWithColor(
 function getColorAtLayerCoord(mainComp, activeLayers, x, y)
 {
   // Ensure all active layers share the same color at this point
-  let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
-  let dataToReturn;
   if(x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y)
   {
-    //
+    let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
+    let dataToReturn;
+  
     for(let ii = 0; ii < activeLayers.length; ii++)
     {
       let ind = activeLayers[ii];
@@ -185,8 +185,9 @@ function getColorAtLayerCoord(mainComp, activeLayers, x, y)
         return false;
       }
     }
+    return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
+
   }
-  return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
 }
 
 // this overwrites the contents of the given layers and replaces them with the specified color
