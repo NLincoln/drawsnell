@@ -15,9 +15,15 @@ class layer
 {
   constructor(width = 40, height = 40, r = 255, g = 255, b = 255, a = 1.0) 
   {
+    // used for internal calculations
     this.width = width;
     this.height = height;
+    this.shouldDisplay = true;
     this.pixelData = [];
+    
+    // used by GUI primarily
+    this.isSolo = false;
+    
     for(var x = 0; x < this.width; x++) 
     {
       this.pixelData.push(new Array(this.height));
@@ -92,35 +98,75 @@ class composition //extends React.Component
     for(var ii = 1; ii < this.layers.length; ii++)
     {
       var blendLayer = this.layers[ii];
-      // iterate over the pixel content of each layer, 
-      for(var xx = 0; xx < this.layers[ii].width; xx++)
+      // only composite the next layer if it should be displayed (i.e. part of the solo group)
+      // otherwise, just skip it
+      if(blendLayer.shouldDisplay) // used for when layers are solo'd
       {
-        for(var yy = 0; yy < this.layers[ii].height; yy++)
+        // iterate over the pixel content of each layer, 
+        for(var xx = 0; xx < this.layers[ii].width; xx++)
         {
-          // layer compositing calculations based on layer and pixel opacity
-          // see here for reference: https://github.com/flrs/blend_modes/blob/master/blend_modes/blend_modes.py
-          let a = baselayer.pixelData[xx][yy]['a'];
-          let b = blendLayer.pixelData[xx][yy]['a'];
-          let ch = Math.min(a, b)*blendLayer.opacity;
-          let n = a + (1 - b)*ch;
-          let j = 0;
-          n == 0 ? j = 0 : j = ch/n;
-          
-          // I had to add this part myself, it was not in flrs' blend code
-          // make sure the blend layer's colors still show up when the baseLayer's alpha is zero!
-          // this will be necessary when saving images as png with an alpha channel
-          a < 0.001 ? j = 1 : j = j;
-          
-          // now apply the alpha channelwise (rgb wise)
-          // need to be between 0 and 255, and integers, so round
-          baselayer.pixelData[xx][yy]['r'] = Math.round(blendLayer.pixelData[xx][yy]['r']*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
-          baselayer.pixelData[xx][yy]['g'] = Math.round(blendLayer.pixelData[xx][yy]['g']*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
-          baselayer.pixelData[xx][yy]['b'] = Math.round(blendLayer.pixelData[xx][yy]['b']*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
-          baselayer.pixelData[xx][yy]['a'] = a + b*blendLayer.opacity - a*b*blendLayer.opacity; // https://stackoverflow.com/a/21492544
+          for(var yy = 0; yy < this.layers[ii].height; yy++)
+          {
+            // layer compositing calculations based on layer and pixel opacity
+            // see here for reference: https://github.com/flrs/blend_modes/blob/master/blend_modes/blend_modes.py
+            let a = baselayer.pixelData[xx][yy]['a'];
+            let b = blendLayer.pixelData[xx][yy]['a'];
+            let ch = Math.min(a, b)*blendLayer.opacity;
+            let n = a + (1 - b)*ch;
+            let j = 0;
+            n == 0 ? j = 0 : j = ch/n;
+            
+            // I had to add this part myself, it was not in flrs' blend code
+            // make sure the blend layer's colors still show up when the baseLayer's alpha is zero!
+            // this will be necessary when saving images as png with an alpha channel
+            a < 0.001 ? j = 1 : j = j;
+            
+            // now apply the alpha channelwise (rgb wise)
+            // need to be between 0 and 255, and integers, so round
+            baselayer.pixelData[xx][yy]['r'] = Math.round(blendLayer.pixelData[xx][yy]['r']*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
+            baselayer.pixelData[xx][yy]['g'] = Math.round(blendLayer.pixelData[xx][yy]['g']*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
+            baselayer.pixelData[xx][yy]['b'] = Math.round(blendLayer.pixelData[xx][yy]['b']*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
+            baselayer.pixelData[xx][yy]['a'] = a + b*blendLayer.opacity - a*b*blendLayer.opacity; // https://stackoverflow.com/a/21492544
+          }
         }
       }
     }
     return baselayer;
+  }
+  
+  // set which layers are visible based on which layers are solo'd
+  calculateSoloLayerVisibility()
+  {
+    let temp = this.getSolos()
+    for(let ii = 1; ii < this.layers.length; ii++)
+    {
+      if(temp.length == 0) // no layers are solo'd => all are visible
+      {
+        this.layers[ii].shouldDisplay = true;
+      }
+      else if(temp.includes(ii)) // at least one layer is solo'd, so only display solo'd layers
+      {
+        this.layers[ii].shouldDisplay = true;
+      }
+      else // this layer is not solo'd, so don't display it
+      {
+        this.layers[ii].shouldDisplay = false;
+      }
+    }
+  }
+  
+  // returns an array containing the layer indices of solo'd layers
+  getSolos()
+  {
+    let soloArray = []
+    for(let ii = 0; ii < this.layers.length; ii++)
+    {
+      if(this.layers[ii].isSolo)
+      {
+        soloArray.push(ii)
+      }
+    }
+    return soloArray;
   }
 }
 
