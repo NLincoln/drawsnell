@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import ColorPicker from "./ColorPicker";
+// import bmodesDict from "./blendModes";
+import bmodes from "./blendModes";
 
 const PanelWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -191,6 +193,41 @@ export default function RightPanel(props)
       window.alert("You can't move that layer up any higher!")
     }
   }
+  /*
+  function changeBlendMode(layNum, selectID)
+  {
+    let blendModeStr = document.getElementById(selectID).value
+    let blendMode = bmodes.normal
+    switch(blendModeStr)
+    {
+      case "Add":
+      blendMode = bmodes.add
+      break;
+      case "Overlay":
+      blendMode = bmodes.overlay
+      break;
+    }
+    props.mainComp.layers[layNum].blendMode = blendMode;
+    props.mainComp.layers[layNum].blendModeStr = blendModeStr;
+    props.changeOneTimeEvent("redrawCanvas")
+    props.changeGUI(null); // update GUI
+    // return blendModeStr
+  }
+  */
+  function changeBlendModeForSelectedLayers()
+  {
+    for(let ii = 0; ii < props.activeLayers.length; ii++)
+    {
+      let ind = props.activeLayers[ii];
+      
+      let blendModeStr = document.getElementById("blendModeSelectID").value
+      let blendMode = bmodes.lookup[blendModeStr]
+      props.mainComp.layers[ind].blendMode = blendMode;
+      props.mainComp.layers[ind].blendModeStr = blendModeStr;
+    }
+    props.changeOneTimeEvent("redrawCanvas");
+    document.getElementById("blendModeSelectID").value = "Blend Mode"
+  }
   
   
   ///////////////////////////////
@@ -210,6 +247,9 @@ export default function RightPanel(props)
       soloString = "Unsolo"
     }
     
+    
+    let bmodeSelectID = "a" + param.value.toString()
+    
     return <>
     
     Layer {param.value}&nbsp;&nbsp;
@@ -221,6 +261,14 @@ export default function RightPanel(props)
       &#9660;
     </button>
     
+    {/* doesn't work and I'm not sure why */}
+    {/* <select id={bmodeSelectID} onChange={(e) => changeBlendMode(param.value, bmodeSelectID)} >
+      <option value="Blend Mode">Blend Mode</option>
+      <option value="Normal">Normal</option>
+      <option value="Add">Add</option>
+      <option value="Overlay">Overlay</option>
+    </select> */}
+
     <button onClick={(e) => makeLayerSolo(param.value)}>
       {soloString}
     </button>
@@ -228,6 +276,8 @@ export default function RightPanel(props)
     <button onClick={(e) => toggleLayerSelect(param.value)}>
       {selectedString}
     </button>
+    
+    &nbsp;&nbsp;{props.mainComp.layers[param.value].blendModeStr}
     
     <br/> 
     </>;
@@ -259,7 +309,7 @@ export default function RightPanel(props)
     
     <br />
     
-    Opacity: &nbsp;&nbsp;&nbsp;
+    {/* Opacity: &nbsp;&nbsp;&nbsp; */}
     {/* Opacity: &emsp; */}
     <button onClick={(e) => opacityUp()}>
       +
@@ -268,6 +318,7 @@ export default function RightPanel(props)
     <button onClick={(e) => opacityDown()}>
       -
     </button>
+    &nbsp;(Opacity)
     <br />
     
     <button onClick={(e) => clearLayers()}>
@@ -279,6 +330,33 @@ export default function RightPanel(props)
     <button onClick={(e) => deleteSelectedLayers()}>
       Delete
     </button>
+    
+    <br />
+    <select id="blendModeSelectID" onChange={(e) => changeBlendModeForSelectedLayers()}>
+      <option value="Blend Mode">Blend Mode</option>
+      <option value="Normal">Normal</option>
+      <option value="Darken">Darken</option>
+      <option value="Multiply">Multiply</option>
+      <option value="Color Burn">Color Burn</option>
+      <option value="Linear Burn">Linear Burn</option>
+      <option value="Lighten">Lighten</option>
+      <option value="Screen">Screen</option>
+      <option value="Color Dodge">Color Dodge</option>
+      <option value="Add">Add</option>
+      <option value="Overlay">Overlay</option>
+      <option value="Soft Light">Soft Light</option>
+      <option value="Hard Light">Hard Light</option>
+      <option value="Vivid Light">Vivid Light</option>
+      <option value="Linear Light">Linear Light</option>
+      <option value="Pin Light">Pin Light</option>
+      <option value="Hard Mix">Hard Mix</option>
+      <option value="Difference">Difference</option>
+      <option value="Exclusion">Exclusion</option>
+      <option value="Subtract">Subtract</option>
+      <option value="Divide">Divide</option>
+      <option value="Grain Extract">Grain Extract</option>
+      <option value="Grain Merge">Grain Merge</option>
+    </select>
     
     <br />
     

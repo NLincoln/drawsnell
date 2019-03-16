@@ -1,4 +1,5 @@
 import React from "react";
+import bmodes from "./blendModes";
 
 class pixel
 {
@@ -20,6 +21,8 @@ class layer
     this.height = height;
     this.shouldDisplay = true;
     this.pixelData = [];
+    this.blendModeStr = "Normal"
+    this.blendMode = bmodes.normal
     
     // used by GUI primarily
     this.isSolo = false;
@@ -83,21 +86,27 @@ class composition //extends React.Component
   {
     // baselayer needs to be a deep copy of the real base layer
     var baselayer = new layer(this.width, this.height);
+    var transparency_grid = new layer(this.width, this.height);
     for(var aa = 0; aa < this.layers[0].width; aa++)
     {
       for(var bb = 0; bb < this.layers[0].height; bb++)
       {
-        baselayer.pixelData[aa][bb]['r'] = this.layers[0].pixelData[aa][bb]['r'];
-        baselayer.pixelData[aa][bb]['g'] = this.layers[0].pixelData[aa][bb]['g'];
-        baselayer.pixelData[aa][bb]['b'] = this.layers[0].pixelData[aa][bb]['b'];
-        baselayer.pixelData[aa][bb]['a'] = this.layers[0].pixelData[aa][bb]['a'];
+        transparency_grid.pixelData[aa][bb]['r'] = this.layers[0].pixelData[aa][bb]['r'];
+        transparency_grid.pixelData[aa][bb]['g'] = this.layers[0].pixelData[aa][bb]['g'];
+        transparency_grid.pixelData[aa][bb]['b'] = this.layers[0].pixelData[aa][bb]['b'];
+        transparency_grid.pixelData[aa][bb]['a'] = this.layers[0].pixelData[aa][bb]['a'];
+        baselayer.pixelData[aa][bb]['a'] = 0;
       }
     }
     
     // iterate over each layer, bottom up, blending depending on opacity
+    
+    
     for(var ii = 1; ii < this.layers.length; ii++)
     {
+      // let done = false;
       var blendLayer = this.layers[ii];
+      let blendFunc = this.layers[ii].blendMode;
       // only composite the next layer if it should be displayed (i.e. part of the solo group)
       // otherwise, just skip it
       if(blendLayer.shouldDisplay) // used for when layers are solo'd
@@ -123,14 +132,51 @@ class composition //extends React.Component
             
             // now apply the alpha channelwise (rgb wise)
             // need to be between 0 and 255, and integers, so round
-            baselayer.pixelData[xx][yy]['r'] = Math.round(blendLayer.pixelData[xx][yy]['r']*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
-            baselayer.pixelData[xx][yy]['g'] = Math.round(blendLayer.pixelData[xx][yy]['g']*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
-            baselayer.pixelData[xx][yy]['b'] = Math.round(blendLayer.pixelData[xx][yy]['b']*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
+            if(a != 0)
+            {
+              // the blended color must take the opacity of the layer beneath it into consideration
+              // the less the opacity of the base layer, the higher the proprotion of the original top layer with the blended color              
+              let rr = Math.round(a*(255*blendFunc(baselayer.pixelData[xx][yy]['r']/255.0, blendLayer.pixelData[xx][yy]['r']/255.0)) + (1 - a)*blendLayer.pixelData[xx][yy]['r'])
+              let gg = Math.round(a*(255*blendFunc(baselayer.pixelData[xx][yy]['g']/255.0, blendLayer.pixelData[xx][yy]['g']/255.0)) + (1 - a)*blendLayer.pixelData[xx][yy]['g'])
+              let bb = Math.round(a*(255*blendFunc(baselayer.pixelData[xx][yy]['b']/255.0, blendLayer.pixelData[xx][yy]['b']/255.0)) + (1 - a)*blendLayer.pixelData[xx][yy]['b'])
+              
+              // still have to take the blended color and weight it with this layer's opacity
+              baselayer.pixelData[xx][yy]['r'] = Math.round(rr*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
+              baselayer.pixelData[xx][yy]['g'] = Math.round(gg*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
+              baselayer.pixelData[xx][yy]['b'] = Math.round(bb*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
+            }
+            else
+            {
+              // since the alpha of the base layer is zero, just return this layer; there's no blending to be done
+              baselayer.pixelData[xx][yy]['r'] = Math.round(blendLayer.pixelData[xx][yy]['r']*j + baselayer.pixelData[xx][yy]['r']*(1 - j))
+              baselayer.pixelData[xx][yy]['g'] = Math.round(blendLayer.pixelData[xx][yy]['g']*j + baselayer.pixelData[xx][yy]['g']*(1 - j))
+              baselayer.pixelData[xx][yy]['b'] = Math.round(blendLayer.pixelData[xx][yy]['b']*j + baselayer.pixelData[xx][yy]['b']*(1 - j))
+            }
             baselayer.pixelData[xx][yy]['a'] = a + b*blendLayer.opacity - a*b*blendLayer.opacity; // https://stackoverflow.com/a/21492544
           }
         }
       }
     }
+    
+    // finally blend finished composite with transparency grid
+    for(var xx = 0; xx < this.layers[0].width; xx++)
+    {
+      for(var yy = 0; yy < this.layers[0].height; yy++)
+      {
+        let a = transparency_grid.pixelData[xx][yy]['a'];
+        let b = baselayer.pixelData[xx][yy]['a'];
+        let ch = Math.min(a, b)*baselayer.opacity;
+        let n = a + (1 - b)*ch;
+        let j = 0;
+        n == 0 ? j = 0 : j = ch/n;
+        
+        baselayer.pixelData[xx][yy]['r'] = Math.round(baselayer.pixelData[xx][yy]['r']*j + transparency_grid.pixelData[xx][yy]['r']*(1 - j))
+        baselayer.pixelData[xx][yy]['g'] = Math.round(baselayer.pixelData[xx][yy]['g']*j + transparency_grid.pixelData[xx][yy]['g']*(1 - j))
+        baselayer.pixelData[xx][yy]['b'] = Math.round(baselayer.pixelData[xx][yy]['b']*j + transparency_grid.pixelData[xx][yy]['b']*(1 - j))
+        baselayer.pixelData[xx][yy]['a'] = 1
+      }
+    }
+    
     return baselayer;
   }
   
@@ -169,16 +215,5 @@ class composition //extends React.Component
     return soloArray;
   }
 }
-
-// myComp = new composition(width = 2, height = 1);
-// console.log(myComp);
-// console.log("\n\n")
-// myComp.addLayer();
-// myComp.layers[1].pixelData[0][0]['r'] = 40;
-// myComp.layers[1].pixelData[0][0]['g'] = 200;
-// myComp.layers[1].pixelData[0][0]['a'] = 1.0;
-// myComp.layers[1].opacity = 1.0;
-// var fi = myComp.getComposite();
-// console.log(fi)
 
 export default composition;

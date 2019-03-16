@@ -60,7 +60,7 @@ export default function App() {
     
     setCurrentTool(tool);
   };
-
+  
   let [color, setColor] = useState({
     r: "241",
     g: "112",
