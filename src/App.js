@@ -89,6 +89,7 @@ export default function App() {
           changeOneTimeEvent={changeOneTimeEvent}
           activeLayers={activeLayers}
           changeActiveLayers={changeActiveLayers}
+          radius={radius}
         />
       </GridArea>
       <GridArea area={"toolchest"}>
