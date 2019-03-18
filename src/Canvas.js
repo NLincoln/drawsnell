@@ -57,6 +57,7 @@ function getPixelCoordsOfEvent(event) {
   return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
 }
 
+/* No idea if we need this anymore.
 function drawColorOnCanvasThenRestore(context, { x, y }, color, radius) {
   let oldColor = context.fillStyle;
   const diameter = radius * 2 - 1;
@@ -64,7 +65,7 @@ function drawColorOnCanvasThenRestore(context, { x, y }, color, radius) {
   context.fillRect(x - (radius - 1), y - (radius - 1), diameter, diameter);
   context.fillStyle = oldColor;
 }
-
+*/
 
 function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
   let position = getPositionOfEventOnElement(event);
@@ -223,7 +224,7 @@ function drawOnCanvas(
   radius
 ) {
   let position = getPixelCoordsOfEvent(event);
-  let ctx = canvas.getContext("2d");
+  // let ctx = canvas.getContext("2d");
   if (prevEvent) {
     let prevPosition = getPixelCoordsOfEvent(prevEvent);
 
@@ -476,6 +477,7 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
  * will return what the background color should be for a given
  * pixel on the canvas.
  */
+/*
 function getBackgroundColorForPixel({ x, y }) {
   let COLOR_A = "gainsboro";
   let COLOR_B = "silver";
@@ -495,6 +497,7 @@ function getBackgroundColorForPixel({ x, y }) {
     }
   }
 }
+*/
 
 function getBackgroundColorForPixelRGBA({
   x,
@@ -502,8 +505,8 @@ function getBackgroundColorForPixelRGBA({
 }) {
   let COLOR_A = [211, 211, 211, 1.0];
   let COLOR_B = [169, 169, 169, 1.0];
-  let xIsOdd = x % 2 == 1;
-  let yIsOdd = y % 2 == 1;
+  let xIsOdd = x % 2 === 1;
+  let yIsOdd = y % 2 === 1;
   if (xIsOdd) {
     if (yIsOdd) {
       return COLOR_A;
@@ -585,9 +588,9 @@ export default function Canvas(props) {
   ///////////////////////////////////////////
   if (props.oneTimeEvent != null) {
     // let ctx = canvas.real().getContext("2d"); // just for reference in case we need it, this works
-    if (props.oneTimeEvent == "redrawCanvas") {
+    if (props.oneTimeEvent === "redrawCanvas") {
       canvas.compositeLayersForAllPixels(props.mainComp);
-    } else if (props.oneTimeEvent == "clearActiveLayers") {
+    } else if (props.oneTimeEvent === "clearActiveLayers") {
       updateLayersWithColor(
         props.mainComp,
         props.activeLayers,
@@ -639,13 +642,10 @@ export default function Canvas(props) {
           style={{ border: "2px solid black" }}
           width={String(CANVAS_SIZE_X * TILE_SIZE)}
           height={String(CANVAS_SIZE_Y * TILE_SIZE)}
-          width={String(CANVAS_SIZE_X * TILE_SIZE)}
-          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           ref={canvas.fakeRef}
         />
         <canvas
           id={"canvas"}
-          style={{ border: "2px solid black" }}
           width={String(CANVAS_SIZE_X * TILE_SIZE)}
           height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           style={{
@@ -653,8 +653,6 @@ export default function Canvas(props) {
             position: "absolute",
             zIndex: "1"
           }}
-          width={String(CANVAS_SIZE_X * TILE_SIZE)}
-          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
           ref={canvas.ref}
           {...canvas.eventHandlers()}
         />
