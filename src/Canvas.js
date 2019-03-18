@@ -57,7 +57,7 @@ function getPixelCoordsOfEvent(event) {
   return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
 }
 
-function drawColorOnCanvasThenRestore(context, { x, y }, color) {
+function drawColorOnCanvasThenRestore(context, { x, y }, color, radius) {
   let oldColor = context.fillStyle;
   const diameter = radius * 2 - 1;
   context.fillStyle = color;
@@ -151,16 +151,22 @@ function updateLayersAtCoordWithColor(
   r,
   g,
   b,
-  a
+  a,
+  radius
 ) {
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
-    // need to get the actual color somehow!
-    for (let ii = 0; ii < activeLayers.length; ii++) {
-      let ind = activeLayers[ii];
-      mainComp.layers[ind].pixelData[x][y].r = r;
-      mainComp.layers[ind].pixelData[x][y].g = g;
-      mainComp.layers[ind].pixelData[x][y].b = b;
-      mainComp.layers[ind].pixelData[x][y].a = a;
+    // Fills in tiles in a specific radius around the central point.
+    for (let curY = y - (radius - 1); curY < y + radius; curY++) {
+      for (let curX = x - (radius - 1); curX < x + radius; curX++) {
+        // need to get the actual color somehow!
+        for (let ii = 0; ii < activeLayers.length; ii++) {
+          let ind = activeLayers[ii];
+          mainComp.layers[ind].pixelData[curX][curY].r = r;
+          mainComp.layers[ind].pixelData[curX][curY].g = g;
+          mainComp.layers[ind].pixelData[curX][curY].b = b;
+          mainComp.layers[ind].pixelData[curX][curY].a = a;
+        }
+      }
     }
   }
 }
@@ -212,7 +218,8 @@ function drawOnCanvas(
   tool,
   mainComp,
   activeLayers,
-  drawColor
+  drawColor,
+  radius
 ) {
   let position = getPixelCoordsOfEvent(event);
   let ctx = canvas.getContext("2d");
@@ -230,7 +237,8 @@ function drawOnCanvas(
           255,
           255,
           255,
-          0
+          0,
+          radius
         );
       } else if (tool === TOOLS.draw) {
         updateLayersAtCoordWithColor(
@@ -241,16 +249,41 @@ function drawOnCanvas(
           drawColor.r,
           drawColor.g,
           drawColor.b,
-          drawColor.a
+          drawColor.a,
+          radius
         );
       }
     }
   } else {
-    // todo: re-handle case where the canvas is clicked, not dragged
+    if (tool === TOOLS.erase) {
+      updateLayersAtCoordWithColor(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        255,
+        255,
+        255,
+        0,
+        radius
+      );
+    } else if (tool === TOOLS.draw) {
+      updateLayersAtCoordWithColor(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        drawColor.r,
+        drawColor.g,
+        drawColor.b,
+        drawColor.a,
+        radius
+      );
+    }
   }
 }
 
-function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius }) {
   let realCanvasRef = useRef(null);
   let fakeCanvasRef = useRef(null);
   let [selection, setSelection] = useState(null);
@@ -285,7 +318,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
               currentTool,
               mainComp,
               activeLayers,
-              drawColor
+              drawColor,
+              radius
             );
           }
         },
@@ -302,7 +336,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
               currentTool,
               mainComp,
               activeLayers,
-              drawColor
+              drawColor,
+              radius
             );
           }
           event.persist();
@@ -322,7 +357,7 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
      * @param {MouseEvent} prevEvent
      * @param {string} tool
      */
-    drawEvent(event, prevEvent, tool, mainComp, activeLayers, drawColor) {
+    drawEvent(event, prevEvent, tool, mainComp, activeLayers, drawColor, radius) {
       this.interact(canvas =>
         drawOnCanvas(
           event,
@@ -331,7 +366,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor }) {
           tool,
           mainComp,
           activeLayers,
-          drawColor
+          drawColor,
+          radius
         )
       );
       this.compositeLayersForAllPixels(mainComp); // actually make all the changes to the layer visible
@@ -531,7 +567,8 @@ export default function Canvas(props) {
     currentTool: props.currentTool,
     mainComp: props.mainComp,
     activeLayers: props.activeLayers,
-    drawColor: props.drawColor
+    drawColor: props.drawColor,
+    radius: props.radius
   });
 
 
