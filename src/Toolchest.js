@@ -30,6 +30,8 @@ export default function Toolchest(props) {
       <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
       <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
       <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
+      <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
+      <button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button>
       <div class="radiusSlider">
         <p>
           Radius:
