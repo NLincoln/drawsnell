@@ -11,6 +11,7 @@ import {
 const CANVAS_SIZE_X = 40; // 40 "fake" pixels
 const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
+var startLinePosition = false; //used to keep track of the 1st position which line tools will draw to
 
 /**
  * So normal events have two things:
@@ -321,11 +322,41 @@ function TileCanvas(props) {
 }
 
 
+/**
+ * Draws a line from the given lineStartPosition to the coord in the
+ * given event.
+ * 
+ * @param {MouseEvent} event 
+ * @param {*} mainComp 
+ * @param {*} activeLayers 
+ * @param {*} drawColor 
+ * @param {*} radius 
+ * @param {*} lineStartPosition 
+ */
+function lineFill(event,mainComp,activeLayers,drawColor,radius,lineStartPosition){
+  let position = getPixelCoordsOfEvent(event);
+  let pointsToFill = bresenham(lineStartPosition, position);
+  for (let point of pointsToFill) {
+    updateLayersAtCoordWithColor(
+      mainComp,
+      activeLayers,
+      point.x,
+      point.y,
+      drawColor.r,
+      drawColor.g,
+      drawColor.b,
+      drawColor.a,
+      radius
+    );
+  }
+}
+
 function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius }) {
   let realCanvasRef = useRef(null);
   let [selection, setSelection] = useState(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
+  let [lineStartPosition, setLineStartPosition] = useState(false);
 
   return {
     ref: realCanvasRef,
@@ -343,6 +374,16 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
             this.beginSelection(event);
           } else if (currentTool === TOOLS.fill) {
             this.fillEvent(event, mainComp, activeLayers, drawColor);
+          } else if (currentTool === TOOLS.line) {
+            this.setLineStartPositionCoordEvent(event)
+          } else if (currentTool === TOOLS.continuousLine) {
+            this.drawContinuousLineEvent(
+              event,
+              mainComp,
+              activeLayers,
+              drawColor,
+              radius
+            );
           } else {
             this.drawEvent(
               event,
@@ -378,6 +419,15 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
         onMouseUp: event => {
           setIsDragging(false);
           previousMouseEvent.current = null;
+          if (currentTool === TOOLS.line) {
+            this.lineDrawEvent(
+              event,
+              mainComp,
+              activeLayers,
+              drawColor,
+              radius
+            );
+          }
         },
         onMouseLeave: event => { }
       };
@@ -403,6 +453,41 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
         )
       );
       this.compositeLayersForAllPixels(mainComp); // actually make all the changes to the layer visible
+    },
+
+    // Draws a continous line.
+    // Note: will only begin drawing a continuous line on the second call to the function
+    // as two coordinates are needed to draw a 2d line.
+    drawContinuousLineEvent(event, mainComp,activeLayers, drawColor, radius) {
+      if(lineStartPosition) {
+        //if lineStartPosition is set, draw a line
+        this.interact(canvas => lineFill(
+          event,
+          mainComp,
+          activeLayers,
+          drawColor,
+          radius,
+          lineStartPosition)
+        );
+        this.compositeLayersForAllPixels(mainComp);//actually update the pixels on the visible layer
+        setLineStartPosition(getPixelCoordsOfEvent(event));
+      } else {
+        //set the starting position
+        setLineStartPosition(getPixelCoordsOfEvent(event));
+      }
+    },
+
+    // Sets the starting position variable with a coord for use in drawing a line
+    setLineStartPositionCoordEvent(event) {
+      setLineStartPosition(getPixelCoordsOfEvent(event));
+    },
+
+    // Draws a line.
+    // Warning: assumes the variable "LineStartPosition" is set
+    lineDrawEvent(event,mainComp,activeLayers,drawColor,radius) {
+      this.interact(canvas => lineFill(event,mainComp,activeLayers,drawColor,radius,lineStartPosition));
+      this.compositeLayersForAllPixels(mainComp);//actually update the pixels on the visible layer
+      setLineStartPosition(false);//unset start position
     },
 
     fillEvent(event, mainComp, activeLayers, fillColor) {
@@ -578,7 +663,7 @@ export default function Canvas(props) {
     mainComp: props.mainComp,
     activeLayers: props.activeLayers,
     drawColor: props.drawColor,
-    radius: props.radius
+    radius: props.radius,
   });
 
 
