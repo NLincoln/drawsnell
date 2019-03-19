@@ -148,7 +148,15 @@ function updateLayersAtCoordWithColor(
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
     // Fills in tiles in a specific radius around the central point.
     for (let curY = y - (radius - 1); curY < y + radius; curY++) {
+      // Skips the y value if it is out of the bounds of the canvas.
+      if (curY < 0 || curY >= CANVAS_SIZE_Y)
+        continue;
+
       for (let curX = x - (radius - 1); curX < x + radius; curX++) {
+        // Skips the pixel if it is out of the bounds of the canvas.
+        if (curX < 0 || curX >= CANVAS_SIZE_X)
+          continue;
+
         // need to get the actual color somehow!
         for (let ii = 0; ii < activeLayers.length; ii++) {
           let ind = activeLayers[ii];

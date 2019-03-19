@@ -35,10 +35,10 @@ function saveCanvas(props) {
     const fileName = document.getElementById('fileName').value;
 
     if (/^[a-z0-9_.@()-]+$/i.test(fileName)) {
-        const canvas = document.getElementById('canvas');
-        const canvasContents = canvas.toDataURL(); // a data URL of the current canvas image
-        const data = { image: canvasContents, date: Date.now() };
-        const string = JSON.stringify(data);
+        let mainComp = props.mainComp;
+        let activeLayers = props.activeLayers;
+        const data = { mainComp: mainComp, activeLayers: activeLayers };
+        const string = JSON.stringify(data, null, 2);
 
         // create a blob object representing the data as a JSON string
         const file = new Blob([string], {
