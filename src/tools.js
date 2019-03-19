@@ -5,3 +5,9 @@ export const TOOLS = Object.freeze({
     fill: 'fill',
     select: 'select'
 });
+
+export const TOOL_CURSORS = Object.freeze({
+    erase: "alias", // Placeholder
+    fill: "crosshair", // Placeholder
+    select: "cell", // Placeholder
+});

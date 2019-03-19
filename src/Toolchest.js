@@ -26,17 +26,18 @@ export default function Toolchest(props) {
 
   return (
     <SidebarWrapper>
-      Tools, etc, etc
       <button onClick={() => toggleTool(TOOLS.draw)}>Draw</button>
       <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
       <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
       <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
       <div class="radiusSlider">
-        <p>Radius: </p>
-        <input type="number" id="radius" min="1" max="100" defaultValue="1" />
-        <button onClick={updateRadius}>
-          Submit
-      </button>
+        <p>
+          Radius:
+          <input type="number" id="radius" min="1" max="100" defaultValue="1" />
+          <button onClick={updateRadius}>
+            Submit
+          </button>
+        </p>
       </div>
     </SidebarWrapper>
   );

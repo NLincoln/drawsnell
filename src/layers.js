@@ -1,6 +1,6 @@
 import bmodes from "./blendModes";
 
-class pixel {
+class Pixel {
   constructor(r = 255, g = 255, b = 255, a = 1.0) {
     this.r = r;
     this.g = g;
@@ -9,7 +9,7 @@ class pixel {
   }
 }
 
-class layer {
+class Layer {
   constructor(width = 40, height = 40, r = 255, g = 255, b = 255, a = 1.0) {
     // used for internal calculations
     this.width = width;
@@ -25,19 +25,26 @@ class layer {
     for (let x = 0; x < this.width; x++) {
       this.pixelData.push(new Array(this.height));
       for (let y = 0; y < this.height; y++) {
-        this.pixelData[x][y] = new pixel(r, g, b, a);
+        this.pixelData[x][y] = new Pixel(r, g, b, a);
       }
     }
     this.opacity = 1.0;
   }
 }
 
-class composition //extends React.Component
+class Composition //extends React.Component
 {
   constructor(width = 40, height = 40, r = 255, g = 255, b = 255, a = 1) {
     this.width = width;
     this.height = height;
-    let baselayer = new layer(this.width, this.height, r, g, b, a);
+    let baselayer = new Layer(
+      this.width,
+      this.height,
+      r,
+      g,
+      b,
+      a
+    );
     this.layers = [baselayer];
   }
 
@@ -46,7 +53,7 @@ class composition //extends React.Component
     for (let ii = 0; ii < layerIndicesArray.length; ii++) {
       let laynum = layerIndicesArray[ii];
       if (laynum >= 0 && laynum < this.layers.length) {
-        this.layers[laynum] = new pixel(new_r, new_g, new_b, new_a);
+        this.layers[laynum] = new Pixel(new_r, new_g, new_b, new_a);
       }
       else {
         window.alert("Your array indices are out of bounds!  See layers.js file for reference.");
@@ -56,7 +63,7 @@ class composition //extends React.Component
 
   // adds a new layer on top
   addLayer(r = 255, g = 255, b = 255, a = 0) {
-    this.layers.push(new layer(this.width, this.height, r, g, b, a));
+    this.layers.push(new Layer(this.width, this.height, r, g, b, a));
   }
 
   // removes a layer by index
@@ -70,8 +77,9 @@ class composition //extends React.Component
   // when x and y are integers, composite only for a single pixel (NOT YET IMPLEMENTED)
   getComposite(x = null, y = null) {
     // baselayer needs to be a deep copy of the real base layer
-    let baselayer = new layer(this.width, this.height);
-    let transparency_grid = new layer(this.width, this.height);
+    let baselayer = new Layer(this.width, this.height);
+    let transparency_grid = new Layer(this.width, this.height);
+
     for (let aa = 0; aa < this.layers[0].width; aa++) {
       for (let bb = 0; bb < this.layers[0].height; bb++) {
         transparency_grid.pixelData[aa][bb]['r'] = this.layers[0].pixelData[aa][bb]['r'];
@@ -82,8 +90,7 @@ class composition //extends React.Component
       }
     }
 
-    // iterate over each layer, bottom up, blending depending on opacity
-
+    // iterate over each layer, bottom up, blending depending on opacity\
 
     for (let ii = 1; ii < this.layers.length; ii++) {
       // let done = false;
@@ -137,23 +144,6 @@ class composition //extends React.Component
       }
     }
 
-    // finally blend finished composite with transparency grid
-    for (let xx = 0; xx < this.layers[0].width; xx++) {
-      for (let yy = 0; yy < this.layers[0].height; yy++) {
-        let a = transparency_grid.pixelData[xx][yy]['a'];
-        let b = baselayer.pixelData[xx][yy]['a'];
-        let ch = Math.min(a, b) * baselayer.opacity;
-        let n = a + (1 - b) * ch;
-        let j = 0;
-        n === 0 ? j = 0 : j = ch / n;
-
-        baselayer.pixelData[xx][yy]['r'] = Math.round(baselayer.pixelData[xx][yy]['r'] * j + transparency_grid.pixelData[xx][yy]['r'] * (1 - j))
-        baselayer.pixelData[xx][yy]['g'] = Math.round(baselayer.pixelData[xx][yy]['g'] * j + transparency_grid.pixelData[xx][yy]['g'] * (1 - j))
-        baselayer.pixelData[xx][yy]['b'] = Math.round(baselayer.pixelData[xx][yy]['b'] * j + transparency_grid.pixelData[xx][yy]['b'] * (1 - j))
-        baselayer.pixelData[xx][yy]['a'] = 1
-      }
-    }
-
     return baselayer;
   }
 
@@ -188,4 +178,4 @@ class composition //extends React.Component
   }
 }
 
-export default composition;
+export default Composition;

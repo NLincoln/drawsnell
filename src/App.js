@@ -5,9 +5,10 @@ import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
-import composition from "./layers";
+import Composition from "./layers";
 import {
-  TOOLS
+  TOOLS,
+  TOOL_CURSORS
 } from "./tools";
 
 import styled from "@emotion/styled";
@@ -24,15 +25,16 @@ const GridArea = styled.div`
   grid-area: ${props => props["area"]};
 `;
 
-export default function App() {
-  //////////////////////////
-  // testing compositions //
-  let aComp = new composition(40, 40, 255, 255, 255, 1.0); // used as the alpha background
+function initComposition() {
+  let aComp = new Composition(40, 40, 255, 255, 255, 1); // used as the alpha background
   aComp.addLayer(255, 255, 255, 0); // empty layer 1
   // aComp.addLayer(255, 255, 255, 0); // empty layer 2
   // aComp.layers[1].opacity = 1.0; // set to 100% opacity
-  // end testing compositions //
-  //////////////////////////////
+
+  return aComp;
+}
+
+export default function App() {
 
   // a state with a list containing all of the users currently selected layers
   let [activeLayers, changeActiveLayers] = useState([1]);
@@ -42,7 +44,7 @@ export default function App() {
   // a value telling the canvas to do something (like redraw itself) exactly once
   let [oneTimeEvent, changeOneTimeEvent] = useState(null);
   // the data structure holding all of the pixel and layer data
-  let [mainComp, changeMainComp] = React.useState(aComp);
+  let [mainComp, changeMainComp] = React.useState(initComposition);
   // the currently selected tool
   let [currentTool, setCurrentTool] = React.useState(TOOLS.draw);
 
@@ -50,17 +52,9 @@ export default function App() {
     // Used to change the cursor style whenever currentTool gets updated
     let root = document.getElementById("root");
 
-    if (tool === TOOLS.erase) {
-      // Make it a pictue located at url
-      // root.style.cursor = "url('')"
-      root.style.cursor = "alias"; // Placeholder
-    }
-    else if (tool === TOOLS.fill)
-      root.style.cursor = "crosshair"; // Placeholder
-    else if (tool === TOOLS.select)
-      root.style.cursor = "cell"; // Placeholder
-    else
-      root.style.cursor = "default"; // Placeholder
+    let cursor = TOOL_CURSORS[tool] || "default";
+
+    root.style.cursor = cursor;
 
     setCurrentTool(tool);
   };
@@ -77,10 +71,12 @@ export default function App() {
   return (
     <Grid>
       <GridArea area={"navbar"}>
-        <NavBar />
+        <NavBar
+          mainComp={mainComp}
+          activeLayers={activeLayers}
+        />
       </GridArea>
       <GridArea area={"canvas"}>
-        {/* <Canvas drawColor={color} currentTool={currentTool} mainComp={mainComp}/> */}
         <Canvas
           drawColor={color}
           currentTool={currentTool}
@@ -109,12 +105,6 @@ export default function App() {
           changeGUI={changeGUI}
         />
       </GridArea>
-
-      {
-        /* <GridArea area={"colorpicker"}>
-                <ColorPicker color={color} onColorChange={setColor} />
-              </GridArea> */
-      }
     </Grid>
   );
 }
