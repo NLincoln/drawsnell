@@ -57,16 +57,6 @@ function getPixelCoordsOfEvent(event) {
   return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
 }
 
-/* No idea if we need this anymore.
-function drawColorOnCanvasThenRestore(context, { x, y }, color, radius) {
-  let oldColor = context.fillStyle;
-  const diameter = radius * 2 - 1;
-  context.fillStyle = color;
-  context.fillRect(x - (radius - 1), y - (radius - 1), diameter, diameter);
-  context.fillStyle = oldColor;
-}
-*/
-
 function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
   let position = getPositionOfEventOnElement(event);
   position = getPixelCoordsInCanvas(position);
@@ -77,23 +67,23 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
   let canvasHeight = canvas.height / TILE_SIZE;
   let pseudoFillColor = "rgb(" + fillColor.r + ", " + fillColor.g +
     ", " + fillColor.b + ", " + fillColor.a + ")";
+  let leftFill, rightFill;
   while (pixelStack.length && color !== pseudoFillColor) {
     let newPos = pixelStack.pop();
     let newX = newPos[0];
     let newY = newPos[1];
-    let leftFill, rightFill;
     let currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     while (newY >= 0 && currentTileColor === color) {
-      newY -= 1;
       if (newY >= 0)
         currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
 
-
+      newY -= 1;
     }
-    if (newY < -1)
+
+    if (newY < 0)
       newY = 0;
     else
-      newY += 1;
+      newY += 2;
 
     currentTileColor = getColorAtLayerCoord(mainComp, activeLayers, newX, newY);
     leftFill = false;
@@ -175,10 +165,10 @@ function updateLayersAtCoordWithColor(
 // This returns the color at a specific pixel
 function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
   // Ensure all active layers share the same color at this point
+  let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
+  let dataToReturn;
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
-    let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
-    let dataToReturn;
-
+    //
     for (let ii = 0; ii < activeLayers.length; ii++) {
       let ind = activeLayers[ii];
       dataToReturn = mainComp.layers[ind].pixelData[x][y];
@@ -186,9 +176,8 @@ function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
         return false;
       }
     }
-    return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
-
   }
+  return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
 }
 
 // this overwrites the contents of the given layers and replaces them with the specified color
@@ -285,22 +274,55 @@ function drawOnCanvas(
   }
 }
 
+function useScaleCanvas(ref) {
+  React.useLayoutEffect(() => {
+    let canvas = ref.current;
+    let ctx = canvas.getContext("2d");
+    ctx.scale(TILE_SIZE, TILE_SIZE);
+  }, []);
+}
+
+function TileCanvas(props) {
+  let { dimensions } = props;
+
+  let ref = useRef(null);
+  useScaleCanvas(ref);
+
+  React.useLayoutEffect(() => {
+    let ctx = ref.current.getContext("2d");
+    for (let y = 0; y < dimensions.height; ++y) {
+      for (let x = 0; x < dimensions.width; ++x) {
+        ctx.fillStyle = getBackgroundColorForPixel({ x, y });
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }, [dimensions]);
+
+  return (
+    <canvas
+      ref={ref}
+      style={{
+        border: "2px solid black",
+        position: "absolute",
+        zIndex: "1"
+      }}
+      width={String(dimensions.width * TILE_SIZE)}
+      height={String(dimensions.height * TILE_SIZE)}
+    />
+  );
+}
+
+
 function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius }) {
   let realCanvasRef = useRef(null);
-  let fakeCanvasRef = useRef(null);
   let [selection, setSelection] = useState(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
 
   return {
     ref: realCanvasRef,
-    fakeRef: fakeCanvasRef,
-
     real() {
       return realCanvasRef.current;
-    },
-    fake() {
-      return fakeCanvasRef.current;
     },
 
     eventHandlers() {
@@ -427,6 +449,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       });
     },
 
+
+
     /* clears the activeLayers to be transparent pixels RGBA(255, 255, 255, 0.0) */
     clearActiveLayers(mainComp, activeLayers) {
       updateLayersWithColor(mainComp, activeLayers, 255, 255, 255, 0);
@@ -439,7 +463,6 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
      */
     interact(cb) {
       cb(realCanvasRef.current);
-      cb(fakeCanvasRef.current);
     },
 
     /**
@@ -477,34 +500,9 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
  * will return what the background color should be for a given
  * pixel on the canvas.
  */
-/*
 function getBackgroundColorForPixel({ x, y }) {
   let COLOR_A = "gainsboro";
   let COLOR_B = "silver";
-  let xIsOdd = x % 2 === 1;
-  let yIsOdd = y % 2 === 1;
-  if (xIsOdd) {
-    if (yIsOdd) {
-      return COLOR_A;
-    } else {
-      return COLOR_B;
-    }
-  } else {
-    if (yIsOdd) {
-      return COLOR_B;
-    } else {
-      return COLOR_A;
-    }
-  }
-}
-*/
-
-function getBackgroundColorForPixelRGBA({
-  x,
-  y
-}) {
-  let COLOR_A = [211, 211, 211, 1.0];
-  let COLOR_B = [169, 169, 169, 1.0];
   let xIsOdd = x % 2 === 1;
   let yIsOdd = y % 2 === 1;
   if (xIsOdd) {
@@ -614,35 +612,20 @@ export default function Canvas(props) {
     );
   }, [props.drawColor]);
 
-  // draw the transparency grid on the background (at layer index 0)
-  useEffect(() => {
-    let ctx = canvas.real().getContext("2d");
-    let oldColor = ctx.fillStyle;
-    for (let y = 0; y < CANVAS_SIZE_Y; ++y) {
-      for (let x = 0; x < CANVAS_SIZE_X; ++x) {
-        let gg = getBackgroundColorForPixelRGBA({ x, y });
-        props.mainComp.layers[0].pixelData[x][y].r = gg[0];
-        props.mainComp.layers[0].pixelData[x][y].g = gg[1];
-        props.mainComp.layers[0].pixelData[x][y].b = gg[2];
-        props.mainComp.layers[0].pixelData[x][y].a = gg[3];
-      }
-    }
-    canvas.compositeLayersForAllPixels(props.mainComp);
-    ctx.fillStyle = oldColor;
-  }, []);
-
   let selection = canvas.selection();
+
+  useEffect(() => {
+    canvas.setColor(props.drawcolor);
+  }, [props.drawcolor]);
 
   return (
     <>
       <div style={{ position: "relative" }}>
-        <canvas
-          hidden={true}
-          id={"hidden-canvas"}
-          style={{ border: "2px solid black" }}
-          width={String(CANVAS_SIZE_X * TILE_SIZE)}
-          height={String(CANVAS_SIZE_Y * TILE_SIZE)}
-          ref={canvas.fakeRef}
+        <TileCanvas
+          dimensions={{
+            width: CANVAS_SIZE_X,
+            height: CANVAS_SIZE_Y
+          }}
         />
         <canvas
           id={"canvas"}
@@ -651,7 +634,7 @@ export default function Canvas(props) {
           style={{
             border: "2px solid black",
             position: "absolute",
-            zIndex: "1"
+            zIndex: "2"
           }}
           ref={canvas.ref}
           {...canvas.eventHandlers()}

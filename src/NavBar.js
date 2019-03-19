@@ -1,4 +1,6 @@
 import React from "react";
+import Export from "./Export"
+import Save from "./Save"
 import styled from "@emotion/styled";
 
 const NavBarWrapper = styled.div`
@@ -7,5 +9,11 @@ const NavBarWrapper = styled.div`
 `;
 
 export default function Toolbar(props) {
-  return <NavBarWrapper>File, Edit, View, Etc..</NavBarWrapper>;
+  return <NavBarWrapper>
+    <Export />
+    <Save
+      mainComp={props.mainComp}
+      activeLayers={props.activeLayers}
+    />
+  </NavBarWrapper>;
 }
