@@ -345,7 +345,7 @@ function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
   
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
     //
-    let dataToReturn = mainComp.layers[activeLayers[0]].pixelData[x][y];
+    let dataToReturn = mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
     return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
   }
   return false;
