@@ -1,14 +1,28 @@
 import React, { Component } from 'react';
 
 class ImportJSON extends Component {
+    constructor(props) {
+        super();
+
+        this.mainComp = props.mainComp;
+        this.activeLayers = props.activeLayers;
+        this.changeMainComp = props.changeMainComp;
+        this.changeActiveLayers = props.changeActiveLayers;
+    }
+    
     clickInput() {
         document.getElementById('jsonfile').click();
     }
 
-    importJSON() {
+    importJSON = () => {
         var file = document.getElementById('jsonfile')
-        var fr = new FileReader();
-        fr.onload = onFileReaderLoad;
+        let fr = new FileReader();
+        fr.onload = function(e) {
+            let jsonText = e.target.result;
+            let obj = JSON.parse(jsonText);
+            this.mainComp = obj.mainComp;
+            this.activeLayers = obj.activeLayers;
+        };
         fr.readAsText(file.files[0]);
     }
     
@@ -22,9 +36,5 @@ class ImportJSON extends Component {
     }
 }
 
-function onFileReaderLoad(e) {
-    var urlStyle = e.target.result;
-    alert(urlStyle);
-}
 
 export default ImportJSON;

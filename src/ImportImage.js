@@ -32,4 +32,4 @@ function onFileReaderLoad(e) {
     image.src = urlStyle;
 }
 
-export default Import;
+export default ImportImage;
