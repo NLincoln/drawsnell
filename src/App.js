@@ -1,15 +1,10 @@
-import React, {
-  useState
-} from "react";
+import React, { useState } from "react";
 import Canvas from "./Canvas";
 import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import Composition from "./layers";
-import {
-  TOOLS,
-  TOOL_CURSORS
-} from "./tools";
+import { TOOLS, TOOL_CURSORS } from "./tools";
 
 import styled from "@emotion/styled";
 
@@ -35,7 +30,6 @@ function initComposition() {
 }
 
 export default function App() {
-
   // a state with a list containing all of the users currently selected layers
   let [activeLayers, changeActiveLayers] = useState([1]);
   // just used to update the GUI when doing things such as adding a new layer
@@ -89,7 +83,12 @@ export default function App() {
         />
       </GridArea>
       <GridArea area={"toolchest"}>
-        <ToolChest currentTool={currentTool} onToolChange={onToolChange} setRadius={setRadius} />
+        <ToolChest
+          currentTool={currentTool}
+          onToolChange={onToolChange}
+          setRadius={setRadius}
+          radius={radius}
+        />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel
