@@ -21,10 +21,10 @@ export default function Toolchest(props) {
 
   return (
     <SidebarWrapper>
-      <button onClick={() => toggleTool(TOOLS.draw)}>Draw</button>
-      <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
-      <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
-      <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
+      <button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button>
+      <button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button>
+      <button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button>
+      <button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button>
       <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
       <button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button>
       <div class="radiusSlider">
