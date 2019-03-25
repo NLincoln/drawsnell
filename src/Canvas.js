@@ -325,13 +325,13 @@ function TileCanvas(props) {
 /**
  * Draws a line from the given lineStartPosition to the coord in the
  * given event.
- * 
- * @param {MouseEvent} event 
- * @param {*} mainComp 
- * @param {*} activeLayers 
- * @param {*} drawColor 
- * @param {*} radius 
- * @param {*} lineStartPosition 
+ *
+ * @param {MouseEvent} event
+ * @param {*} mainComp
+ * @param {*} activeLayers
+ * @param {*} drawColor
+ * @param {*} radius
+ * @param {*} lineStartPosition
  */
 function lineFill(event,mainComp,activeLayers,drawColor,radius,lineStartPosition){
   let position = getPixelCoordsOfEvent(event);
@@ -429,7 +429,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
             );
           }
         },
-        onMouseLeave: event => { }
+        onMouseLeave: event => {
+          setIsDragging(false);
+          previousMouseEvent.current = null;
+        }
       };
     },
 
