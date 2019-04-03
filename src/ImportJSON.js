@@ -1,40 +1,32 @@
-import React, { Component } from 'react';
+import React, {} from 'react';
+import Composition from "./layers";
+import './Import.css';
 
-class ImportJSON extends Component {
-    constructor(props) {
-        super();
+function clickInput() {
+    document.getElementById('jsonfunc').click();
+}
 
-        this.mainComp = props.mainComp;
-        this.activeLayers = props.activeLayers;
-        this.changeMainComp = props.changeMainComp;
-        this.changeActiveLayers = props.changeActiveLayers;
-    }
-    
-    clickInput() {
-        document.getElementById('jsonfile').click();
-    }
-
-    importJSON = () => {
-        var file = document.getElementById('jsonfile')
+export default function ImportJSONF(props) {
+    function ImportJSON(){
+        var file = document.getElementById('jsonfunc')
         let fr = new FileReader();
         fr.onload = function(e) {
             let jsonText = e.target.result;
             let obj = JSON.parse(jsonText);
-            this.mainComp = obj.mainComp;
-            this.activeLayers = obj.activeLayers;
+            let newComp = new Composition(obj.mainComp.width, obj.mainComp.height, obj.mainComp.layers);
+            props.changeMainComp(newComp);
+            props.changeActiveLayers(obj.activeLayers);
+            props.changeOneTimeEvent("redrawCanvas");
         };
-        fr.readAsText(file.files[0]);
+        if(file !== null){
+            fr.readAsText(file.files[0]);
+        }
     }
-    
-    render() {
-        return (
-            <div>
-                <button onClick={this.clickInput}>Open JSON</button>
-                <input type="file" id="jsonfile" ref="jsonfileUpload" onChange={this.importJSON} style={{display:"none"}}></input>
-            </div>
-        );
-    }
-}
 
-
-export default ImportJSON;
+    return (
+        <span>
+            <button className="import-btn" onClick={clickInput}>Open JSON</button>
+            <input type="file" id="jsonfunc" onChange={ImportJSON} style={{display:"none"}}></input>
+        </span>
+    );
+};

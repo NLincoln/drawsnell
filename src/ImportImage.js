@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './Import.css';
 
 class ImportImage extends Component {
     clickInput() {
@@ -14,10 +15,10 @@ class ImportImage extends Component {
     
     render() {
         return (
-            <div>
-                <button onClick={this.clickInput}>Open File</button>
+            <span>
+                <button className="import-btn" onClick={this.clickInput}>Open File</button>
                 <input type="file" id="file" ref="fileUpload" onChange={this.importImage} style={{display:"none"}}></input>
-            </div>
+            </span>
         );
     }
 }
