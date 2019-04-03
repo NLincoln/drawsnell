@@ -59,6 +59,8 @@ export default function App() {
           activeLayers={activeLayers}
           changeMainComp={changeMainComp}
           changeActiveLayers={changeActiveLayers}
+          oneTimeEvent={oneTimeEvent}
+          changeOneTimeEvent={changeOneTimeEvent}
         />
       </GridArea>
       <GridArea area={"canvas"}>

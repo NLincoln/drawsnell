@@ -1,0 +1,10 @@
+.import-btn {
+    background: black;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    outline: none;
+    padding: 10px;
+    margin: 15px;
+}
