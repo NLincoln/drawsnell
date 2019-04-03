@@ -17,7 +17,14 @@ export default function Toolbar(props) {
       mainComp={props.mainComp}
       activeLayers={props.activeLayers}
     />
-    <ImportImage />
+    <ImportImage
+      mainComp={props.mainComp}
+      activeLayers={props.activeLayers}
+      changeMainComp={props.changeMainComp}
+      changeActiveLayers={props.changeActiveLayers}
+      oneTimeEvent={props.oneTimeEvent}
+      changeOneTimeEvent={props.changeOneTimeEvent}
+    />
     <ImportFunction
       mainComp={props.mainComp}
       activeLayers={props.activeLayers}
