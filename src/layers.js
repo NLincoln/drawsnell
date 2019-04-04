@@ -35,17 +35,27 @@ class Layer {
 class Composition //extends React.Component
 {
   constructor(width = 40, height = 40, r = 255, g = 255, b = 255, a = 1) {
-    this.width = width;
-    this.height = height;
-    let baselayer = new Layer(
-      this.width,
-      this.height,
-      r,
-      g,
-      b,
-      a
-    );
-    this.layers = [baselayer];
+    if(arguments.length == 3){
+      this.width = width;
+      this.height = height;
+      this.layers = r;
+
+      for(let i = 1; i < this.layers.length; i++){
+        this.layers[i].blendMode = bmodes.lookup[this.layers[i].blendModeStr];
+      }
+    } else {
+      this.width = width;
+      this.height = height;
+      let baselayer = new Layer(
+        this.width,
+        this.height,
+        r,
+        g,
+        b,
+        a
+      );
+      this.layers = [baselayer];
+    }
   }
 
   // updates the pixel at a given x y coord for the given layers to a new value
