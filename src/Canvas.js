@@ -339,22 +339,16 @@ function updateLayersAtCoordWithColor(
   }
 }
 
-// This returns the color at a specific pixel
+// This returns the color at a specific pixel in the topmost layer
 function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
   // Ensure all active layers share the same color at this point
-  let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
-  let dataToReturn;
+  
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
     //
-    for (let ii = 0; ii < activeLayers.length; ii++) {
-      let ind = activeLayers[ii];
-      dataToReturn = mainComp.layers[ind].pixelData[x][y];
-      if (dataToReturn !== firstLayerData) {
-        return false;
-      }
-    }
+    let dataToReturn = mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
+    return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
   }
-  return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
+  return false;
 }
 
 // this overwrites the contents of the given layers and replaces them with the specified color
