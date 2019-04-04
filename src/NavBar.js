@@ -1,6 +1,8 @@
 import React from "react";
 import Export from "./Export"
 import Save from "./Save"
+import ImportImage from './ImportImage'
+import ImportFunction from './ImportJSON'
 import styled from "@emotion/styled";
 
 const NavBarWrapper = styled.div`
@@ -14,6 +16,22 @@ export default function Toolbar(props) {
     <Save
       mainComp={props.mainComp}
       activeLayers={props.activeLayers}
+    />
+    <ImportImage
+      mainComp={props.mainComp}
+      activeLayers={props.activeLayers}
+      changeMainComp={props.changeMainComp}
+      changeActiveLayers={props.changeActiveLayers}
+      oneTimeEvent={props.oneTimeEvent}
+      changeOneTimeEvent={props.changeOneTimeEvent}
+    />
+    <ImportFunction
+      mainComp={props.mainComp}
+      activeLayers={props.activeLayers}
+      changeMainComp={props.changeMainComp}
+      changeActiveLayers={props.changeActiveLayers}
+      oneTimeEvent={props.oneTimeEvent}
+      changeOneTimeEvent={props.changeOneTimeEvent}
     />
   </NavBarWrapper>;
 }

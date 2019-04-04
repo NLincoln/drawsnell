@@ -57,6 +57,10 @@ export default function App() {
         <NavBar
           mainComp={mainComp}
           activeLayers={activeLayers}
+          changeMainComp={changeMainComp}
+          changeActiveLayers={changeActiveLayers}
+          oneTimeEvent={oneTimeEvent}
+          changeOneTimeEvent={changeOneTimeEvent}
         />
       </GridArea>
       <GridArea area={"canvas"}>
