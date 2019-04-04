@@ -21,12 +21,18 @@ export default function Toolchest(props) {
 
   return (
     <SidebarWrapper>
-      <button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button>
-      <button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button>
-      <button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button>
-      <button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button>
-      <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
-      <button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button>
+      <ul>
+        <li><button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.line)}>Line</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.brush)}>Brush</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
+      </ul>
       <div class="radiusSlider">
         <p>
           Radius:
