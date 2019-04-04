@@ -6,8 +6,12 @@ export const TOOLS = Object.freeze({
     erase: 'erase',
     fill: 'fill',
     select: 'select',
+    brush: 'brush',
+    questionTool: 'questionTool',
     line: 'line',
     continuousLine: 'continuousLine',
+    calligBrush: 'calligBrush',
+    sprinkle: 'sprinkle',
 });
 
 export const TOOL_CURSORS = Object.freeze({
