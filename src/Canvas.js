@@ -5,7 +5,7 @@ import React, {
 } from "react";
 import bresenham from "./bresenham";
 import {
-  TOOLS
+  TOOLS, toolShortcutHandler
 } from "./tools";
 
 const CANVAS_SIZE_X = 40; // 40 "fake" pixels
@@ -132,6 +132,15 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
     } // End fill while
   } // End stack popping while
 } // End fillTool
+
+function eyedropperTool(event, mainComp, activeLayers, drawColor, setColor){
+  let position = getPositionOfEventOnElement(event);
+  position = getPixelCoordsInCanvas(position);
+  let color = getActualColorAtLayerCoord(mainComp, activeLayers, position.x, position.y);
+  if(color !== drawColor && color){
+    setColor(color);
+  }
+}
 
 // This updates the values of layers for the brush tool.
 // Does not redraw the canvas!
@@ -347,6 +356,13 @@ function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
     //
     let dataToReturn = mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
     return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
+  }
+  return false;
+}
+
+function getActualColorAtLayerCoord(mainComp, activeLayers, x, y) {
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    return mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
   }
   return false;
 }
@@ -611,7 +627,7 @@ function lineFill(event,mainComp,activeLayers,drawColor,radius,lineStartPosition
   }
 }
 
-function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius }) {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, setColor }) {
   let realCanvasRef = useRef(null);
   let [selection, setSelection] = useState(null);
   let previousMouseEvent = useRef(null);
@@ -644,6 +660,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
               drawColor,
               radius
             );
+          } else if (currentTool === TOOLS.eyedropper){
+            this.eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor)
           } else {
             this.drawEvent(
               event,
@@ -756,6 +774,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
     fillEvent(event, mainComp, activeLayers, fillColor) {
       this.interact(canvas => fillTool(event, canvas, mainComp, activeLayers, fillColor));
       this.compositeLayersForAllPixels(mainComp);
+    },
+
+    eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor) {
+      this.interact(canvas => eyedropperTool(event, mainComp, activeLayers, drawColor, setColor));
     },
 
     /**
@@ -927,6 +949,7 @@ export default function Canvas(props) {
     activeLayers: props.activeLayers,
     drawColor: props.drawColor,
     radius: props.radius,
+    setColor: props.setColor,
   });
 
 

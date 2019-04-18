@@ -25,7 +25,7 @@ export default function ImportJSONF(props) {
 
     return (
         <span>
-            <button className="import-btn" onClick={clickInput}>Open JSON</button>
+            <button className="import-btn" onClick={clickInput}>Import JSON</button>
             <input type="file" id="jsonfunc" onChange={ImportJSON} style={{display:"none"}}></input>
         </span>
     );

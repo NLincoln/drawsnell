@@ -12,6 +12,7 @@ export const TOOLS = Object.freeze({
     continuousLine: 'continuousLine',
     calligBrush: 'calligBrush',
     sprinkle: 'sprinkle',
+    eyedropper: 'eyedropper',
 });
 
 export const TOOL_CURSORS = Object.freeze({

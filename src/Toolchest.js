@@ -32,6 +32,7 @@ export default function Toolchest(props) {
         <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
         <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
         <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.eyedropper)}>Eyedropper</button></li>
       </ul>
       <div class="radiusSlider">
         <p>
