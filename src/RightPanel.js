@@ -60,7 +60,7 @@ export default function RightPanel(props) {
     }
 
     // update any other layer-specific gui related info
-    props.changeGUI(null)
+    props.changeGUI(!props.GUI); // update GUI
   }
 
   // testing functions to see the opacity of layers
@@ -93,7 +93,10 @@ export default function RightPanel(props) {
   }
 
   function addLayer() {
-    props.mainComp.addLayer();
+    
+    // the default layer name depends on the current number of layers
+    let currentNumLayers = props.mainComp.layers.length
+    props.mainComp.addLayer("Layer " + currentNumLayers.toString());
     props.changeActiveLayers(Array.from(props.activeLayers)) // doesn't update GUI without this line and I'm not sure why
   }
 
@@ -140,7 +143,8 @@ export default function RightPanel(props) {
   function makeLayerSolo(layNum) {
     props.mainComp.layers[layNum].isSolo = !props.mainComp.layers[layNum].isSolo; // invert whether solo or not
     props.mainComp.calculateSoloLayerVisibility(); // calculate which layers are visible based on solos
-    props.changeGUI(null); // update GUI
+    // props.changeGUI(null); // update GUI
+    props.changeGUI(!props.GUI); // update GUI
     props.changeOneTimeEvent("redrawCanvas")
   }
 
@@ -197,11 +201,24 @@ export default function RightPanel(props) {
     document.getElementById("blendModeSelectID").value = "Blend Mode"
   }
 
+  function renameSelectedLayers()
+  {
+    let j = document.getElementById("LayerNameTextField").value;
+    for (let ii = 0; ii < props.activeLayers.length; ii++)
+    {
+      let ind = props.activeLayers[ii];
+      props.mainComp.layers[ind].name = j;
+    }
+    
+    // let jj = 5;
+    // if (props.GUI == null) {jj = 5} else {jj = null}
+    props.changeGUI(!props.GUI); // update GUI
+  }
 
   ///////////////////////////////
   // dynamic layer GUI manager //
   ///////////////////////////////
-  function LayerItem(param) // first letter must be uppercase!
+  function LayerItem(param) // param corresponds to the index of the layer in question
   {
 
     let selectedString = "Select"
@@ -217,7 +234,8 @@ export default function RightPanel(props) {
 
     return <>
 
-      Layer {param.value}&nbsp;&nbsp;
+      {/* Layer {param.value}&nbsp;&nbsp; */}
+      {props.mainComp.layers[param.value].name} &nbsp;&nbsp;
     <button onClick={(e) => moveLayerUpOne(param.value)}>
         &#9650;
     </button>
@@ -325,13 +343,22 @@ export default function RightPanel(props) {
 
     <br />
 
+    <input id="LayerNameTextField" type="text" name="LayerName" placeholder="Enter a new layer name"></input>
+    <button onClick={(e) => renameSelectedLayers()}>
+      Rename Selected Layers
+    </button>
+
+    <br />
+
     Layer Manager
 
     <br />
 
-    Active Layers = {props.activeLayers.join(", ")}
+    {/* Active Layers = {props.activeLayers.join(", ")} */}
+    Active Layers = {props.mainComp.getLayerNamesStringFromArrayOfIndices(props.activeLayers)}
     <br />
-    Solo Layers = {props.mainComp.getSolos().join(", ")}
+    {/* Solo Layers = {props.mainComp.getSolos().join(", ")} */}
+    Solo Layers = {props.mainComp.getLayerNamesStringFromArrayOfIndices(props.mainComp.getSolos())}
 
     <br />
 

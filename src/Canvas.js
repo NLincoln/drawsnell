@@ -11,7 +11,6 @@ import {
 const CANVAS_SIZE_X = 40; // 40 "fake" pixels
 const CANVAS_SIZE_Y = 40; // 40 "fake" pixels
 const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
-var startLinePosition = false; //used to keep track of the 1st position which line tools will draw to
 
 /**
  * So normal events have two things:
@@ -134,6 +133,175 @@ function fillTool(event, canvas, mainComp, activeLayers, fillColor) {
   } // End stack popping while
 } // End fillTool
 
+// This updates the values of layers for the brush tool.
+// Does not redraw the canvas!
+function updateLayersAtCoordWithColorBrushTool(
+  mainComp,
+  activeLayers,
+  x,
+  y,
+  r,
+  g,
+  b,
+  a,
+  radius
+) {
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    // Fills in tiles in a specific radius around the central point.
+    for (let curY = y - (radius - 1); curY < y + radius; curY++) {
+      // Skips the y value if it is out of the bounds of the canvas.
+      if (curY < 0 || curY >= CANVAS_SIZE_Y)
+        continue;
+
+      for (let curX = x - (radius - 1); curX < x + radius; curX++) {
+        // Skips the pixel if it is out of the bounds of the canvas.
+        if (curX < 0 || curX >= CANVAS_SIZE_X)
+          continue;
+        
+        // find distance pixel is from epicenter(given x and y)
+        let distanceFromCenter = Math.abs(y - curY) + Math.abs(x - curX);
+        // find percantage pixel should be the targ color based on the distance
+        let percentTargColor = 1 - distanceFromCenter/(radius+radius-1);
+
+        // need to get the actual color somehow!
+        for (let ii = 0; ii < activeLayers.length; ii++) {
+          let ind = activeLayers[ii];
+          let differenceR = r - mainComp.layers[ind].pixelData[curX][curY].r;
+          let differenceG = g - mainComp.layers[ind].pixelData[curX][curY].g;
+          let differenceB = b - mainComp.layers[ind].pixelData[curX][curY].b;
+          let differenceA = a - mainComp.layers[ind].pixelData[curX][curY].a;
+
+          mainComp.layers[ind].pixelData[curX][curY].r = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].r + (differenceR * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].g = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].g + (differenceG * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].b = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].b + (differenceB * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].a = mainComp.layers[ind].pixelData[curX][curY].a + (differenceA * percentTargColor);
+        }
+      }
+    }
+  }
+}
+
+// This updates the values of layers for the brush tool.
+// Does not redraw the canvas!
+function updateLayersAtCoordWithColorQuestionTool(
+  mainComp,
+  activeLayers,
+  x,
+  y,
+  r,
+  g,
+  b,
+  a,
+  radius
+) {
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    // Fills in tiles in a specific radius around the central point.
+    for (let curY = y - (radius - 1); curY < y + radius; curY++) {
+      // Skips the y value if it is out of the bounds of the canvas.
+      if (curY < 0 || curY >= CANVAS_SIZE_Y)
+        continue;
+
+      for (let curX = x - (radius - 1); curX < x + radius; curX++) {
+        // Skips the pixel if it is out of the bounds of the canvas.
+        if (curX < 0 || curX >= CANVAS_SIZE_X)
+          continue;
+        
+        // find distance pixel is from epicenter(given x and y)
+        let distanceFromCenter = Math.abs(y - curY) + Math.abs(x - curX);
+        // find percantage pixel should be the targ color based on the distance
+        let percentTargColor = 1 - distanceFromCenter/(radius);
+
+        // need to get the actual color somehow!
+        for (let ii = 0; ii < activeLayers.length; ii++) {
+          let ind = activeLayers[ii];
+          let differenceR = r - mainComp.layers[ind].pixelData[curX][curY].r;
+          let differenceG = g - mainComp.layers[ind].pixelData[curX][curY].g;
+          let differenceB = b - mainComp.layers[ind].pixelData[curX][curY].b;
+          let differenceA = a - mainComp.layers[ind].pixelData[curX][curY].a;
+
+          mainComp.layers[ind].pixelData[curX][curY].r = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].r + (differenceR * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].g = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].g + (differenceG * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].b = Math.trunc(mainComp.layers[ind].pixelData[curX][curY].b + (differenceB * percentTargColor));
+          mainComp.layers[ind].pixelData[curX][curY].a = mainComp.layers[ind].pixelData[curX][curY].a + (differenceA * percentTargColor);
+        }
+      }
+    }
+  }
+}
+
+// This updates the values of layers for the calligraphy brush tool.
+// Does not redraw the canvas!
+function updateLayersAtCoordWithColorCalligBrush(
+  mainComp,
+  activeLayers,
+  x,
+  y,
+  r,
+  g,
+  b,
+  a,
+  radius
+) {
+  let pointOffset = Math.trunc(radius/2);
+  let firstPoint = {x: x+pointOffset,y:y+pointOffset};
+  let secondPoint = {x: x-pointOffset,y:y-pointOffset};
+  let pointsToFill = bresenham(firstPoint,secondPoint);
+  for (let point of pointsToFill) {
+    updateLayersAtCoordWithColor(
+      mainComp,
+      activeLayers,
+      point.x,
+      point.y,
+      r,
+      g,
+      b,
+      a,
+      1
+    );
+  }
+}
+
+// This updates the values of layers for the calligraphy brush tool.
+// Does not redraw the canvas!
+function updateLayersAtCoordWithColorSprinkle(
+  mainComp,
+  activeLayers,
+  x,
+  y,
+  r,
+  g,
+  b,
+  a,
+  radius
+) {
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    // Fills in tiles in a specific radius around the central point.
+    for (let curY = y - (radius - 1); curY < y + radius; curY++) {
+      // Skips the y value if it is out of the bounds of the canvas.
+      if (curY < 0 || curY >= CANVAS_SIZE_Y)
+        continue;
+
+      for (let curX = x - (radius - 1); curX < x + radius; curX++) {
+        // Skips the pixel if it is out of the bounds of the canvas.
+        if (curX < 0 || curX >= CANVAS_SIZE_X)
+          continue;
+       
+       //randomly draw pixel
+       if((Math.random()*100) > 97){
+        // need to get the actual color somehow!
+        for (let ii = 0; ii < activeLayers.length; ii++) {
+          let ind = activeLayers[ii];
+          mainComp.layers[ind].pixelData[curX][curY].r = r;
+          mainComp.layers[ind].pixelData[curX][curY].g = g;
+          mainComp.layers[ind].pixelData[curX][curY].b = b;
+          mainComp.layers[ind].pixelData[curX][curY].a = a;
+        }
+       }        
+      }
+    }
+  }
+}
+
 // this updates the values of layers but does not redraw the canvas!
 function updateLayersAtCoordWithColor(
   mainComp,
@@ -171,22 +339,16 @@ function updateLayersAtCoordWithColor(
   }
 }
 
-// This returns the color at a specific pixel
+// This returns the color at a specific pixel in the topmost layer
 function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
   // Ensure all active layers share the same color at this point
-  let firstLayerData = mainComp.layers[activeLayers[0]].pixelData[x][y];
-  let dataToReturn;
+  
   if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
     //
-    for (let ii = 0; ii < activeLayers.length; ii++) {
-      let ind = activeLayers[ii];
-      dataToReturn = mainComp.layers[ind].pixelData[x][y];
-      if (dataToReturn !== firstLayerData) {
-        return false;
-      }
-    }
+    let dataToReturn = mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
+    return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
   }
-  return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
+  return false;
 }
 
 // this overwrites the contents of the given layers and replaces them with the specified color
@@ -225,7 +387,9 @@ function drawOnCanvas(
   // let ctx = canvas.getContext("2d");
   if (prevEvent) {
     let prevPosition = getPixelCoordsOfEvent(prevEvent);
-
+    if(position.x === prevPosition.x && position.y === prevPosition.y){
+      return;
+    }
     let pointsToFill = bresenham(prevPosition, position);
     for (let point of pointsToFill) {
       if (tool === TOOLS.erase) {
@@ -242,6 +406,54 @@ function drawOnCanvas(
         );
       } else if (tool === TOOLS.draw) {
         updateLayersAtCoordWithColor(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          drawColor.r,
+          drawColor.g,
+          drawColor.b,
+          drawColor.a,
+          radius
+        );
+      } else if (tool === TOOLS.questionTool){
+        updateLayersAtCoordWithColorQuestionTool(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          drawColor.r,
+          drawColor.g,
+          drawColor.b,
+          drawColor.a,
+          radius
+        );
+      } else if (tool === TOOLS.calligBrush) {
+        updateLayersAtCoordWithColorCalligBrush(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          drawColor.r,
+          drawColor.g,
+          drawColor.b,
+          drawColor.a,
+          radius
+        );
+      } else if (tool === TOOLS.sprinkle) {
+        updateLayersAtCoordWithColorSprinkle(
+          mainComp,
+          activeLayers,
+          point.x,
+          point.y,
+          drawColor.r,
+          drawColor.g,
+          drawColor.b,
+          drawColor.a,
+          radius
+        );
+      } else if (tool === TOOLS.brush) {
+        updateLayersAtCoordWithColorBrushTool(
           mainComp,
           activeLayers,
           point.x,
@@ -269,6 +481,54 @@ function drawOnCanvas(
       );
     } else if (tool === TOOLS.draw) {
       updateLayersAtCoordWithColor(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        drawColor.r,
+        drawColor.g,
+        drawColor.b,
+        drawColor.a,
+        radius
+      );
+    } else if (tool === TOOLS.questionTool){
+      updateLayersAtCoordWithColorQuestionTool(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        drawColor.r,
+        drawColor.g,
+        drawColor.b,
+        drawColor.a,
+        radius
+      );
+    } else if (tool === TOOLS.calligBrush) {
+      updateLayersAtCoordWithColorCalligBrush(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        drawColor.r,
+        drawColor.g,
+        drawColor.b,
+        drawColor.a,
+        radius
+      );
+    } else if (tool === TOOLS.sprinkle) {
+      updateLayersAtCoordWithColorSprinkle(
+        mainComp,
+        activeLayers,
+        position.x,
+        position.y,
+        drawColor.r,
+        drawColor.g,
+        drawColor.b,
+        drawColor.a,
+        radius
+      );
+    } else if (tool === TOOLS.brush) {
+      updateLayersAtCoordWithColorBrushTool(
         mainComp,
         activeLayers,
         position.x,
@@ -325,13 +585,13 @@ function TileCanvas(props) {
 /**
  * Draws a line from the given lineStartPosition to the coord in the
  * given event.
- * 
- * @param {MouseEvent} event 
- * @param {*} mainComp 
- * @param {*} activeLayers 
- * @param {*} drawColor 
- * @param {*} radius 
- * @param {*} lineStartPosition 
+ *
+ * @param {MouseEvent} event
+ * @param {*} mainComp
+ * @param {*} activeLayers
+ * @param {*} drawColor
+ * @param {*} radius
+ * @param {*} lineStartPosition
  */
 function lineFill(event,mainComp,activeLayers,drawColor,radius,lineStartPosition){
   let position = getPixelCoordsOfEvent(event);
@@ -429,7 +689,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
             );
           }
         },
-        onMouseLeave: event => { }
+        onMouseLeave: event => {
+          setIsDragging(false);
+          previousMouseEvent.current = null;
+        }
       };
     },
 

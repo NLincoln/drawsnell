@@ -18,9 +18,10 @@ class Layer {
     this.pixelData = [];
     this.blendModeStr = "Normal"
     this.blendMode = bmodes.normal
-
+    
     // used by GUI primarily
     this.isSolo = false;
+    this.name = ""
 
     for (let x = 0; x < this.width; x++) {
       this.pixelData.push(new Array(this.height));
@@ -72,13 +73,27 @@ class Composition //extends React.Component
   }
 
   // adds a new layer on top
-  addLayer(r = 255, g = 255, b = 255, a = 0) {
+  addLayer(name = "", r = 255, g = 255, b = 255, a = 0) {
     this.layers.push(new Layer(this.width, this.height, r, g, b, a));
+    this.layers[this.layers.length - 1].name = name;
   }
 
   // removes a layer by index
   removeLayer(i) {
     this.layers.splice(i, 1);
+  }
+  
+  // takes an array of indexes, and returns a string consisting of those layers' names concatenated, separated by a comma
+  // they will appear in the string in bottom up order (bottom-most layer first, topmost last)
+  getLayerNamesStringFromArrayOfIndices(activeLayersArray)
+  {
+    var startString = "";
+    for(var i = 0; i < activeLayersArray.length; i++)
+    {
+      startString += this.layers[activeLayersArray[i]].name + ", ";
+    }
+    startString = startString.substring(0, startString.length - 2);
+    return startString;
   }
 
   // returns the layer corresponding to what's actually displayed

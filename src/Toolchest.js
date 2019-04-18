@@ -19,26 +19,32 @@ export default function Toolchest(props) {
     }
   };
 
-  function updateRadius() {
-    const value = parseInt(document.getElementById("radius").value);
-    props.setRadius(value);
-  }
-
   return (
     <SidebarWrapper>
-      <button onClick={() => toggleTool(TOOLS.draw)}>Draw</button>
-      <button onClick={() => toggleTool(TOOLS.erase)}>Eraser</button>
-      <button onClick={() => toggleTool(TOOLS.select)}>Select</button>
-      <button onClick={() => toggleTool(TOOLS.fill)}>Fill</button>
-      <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
-      <button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button>
+      <ul>
+        <li><button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.line)}>Line</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.brush)}>Brush</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
+      </ul>
       <div class="radiusSlider">
         <p>
           Radius:
-          <input type="number" id="radius" min="1" max="100" defaultValue="1" />
-          <button onClick={updateRadius}>
-            Submit
-          </button>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={props.radius}
+            onChange={event => {
+              props.setRadius(Number(event.target.value));
+            }}
+          />
         </p>
       </div>
     </SidebarWrapper>
