@@ -50,7 +50,11 @@ export default function ImportImage(props){
 
     return (
         <span>
+<<<<<<< HEAD
             <button className="import-btn" onClick={clickInput}>Import Image</button>
+=======
+            <button className="import-btn" onClick={clickInput}>Open File</button>
+>>>>>>> ce14e51913ff67a6fd4a1f7a4416193ba81c8537
             <input type="file" id="file" onChange={importImage} style={{display:"none"}}></input>
         </span>
     );
