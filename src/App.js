@@ -4,7 +4,7 @@ import NavBar from "./NavBar";
 import ToolChest from "./Toolchest";
 import RightPanel from "./RightPanel";
 import Composition from "./layers";
-import { TOOLS, useToolHandler } from "./tools";
+import { useToolHandler } from "./tools";
 import styled from "@emotion/styled";
 
 const Grid = styled.div`
