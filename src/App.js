@@ -48,6 +48,13 @@ export default function App() {
     b: "19",
     a: "1"
   });
+  
+  let [color2, setColor2] = useState({
+    r: "0",
+    g: "0",
+    b: "255",
+    a: "1"
+  });
 
   let [radius, setRadius] = useState(1);
 
@@ -86,7 +93,9 @@ export default function App() {
       <GridArea area={"right-panel"}>
         <RightPanel
           color={color}
+          color2={color2}
           onColorChange={setColor}
+          onColor2Change={setColor2}
           mainComp={mainComp}
           changeMainComp={changeMainComp}
           oneTimeEvent={oneTimeEvent}

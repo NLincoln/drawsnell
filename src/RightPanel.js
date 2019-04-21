@@ -214,6 +214,14 @@ export default function RightPanel(props) {
     // if (props.GUI == null) {jj = 5} else {jj = null}
     props.changeGUI(!props.GUI); // update GUI
   }
+  
+  function swapColors()
+  {
+    let tempcolor = props.color;
+    let tempcolor2 = props.color2;
+    props.onColorChange(tempcolor2);
+    props.onColor2Change(tempcolor);
+  }
 
   ///////////////////////////////
   // dynamic layer GUI manager //
@@ -286,7 +294,15 @@ export default function RightPanel(props) {
   }
 
   return <PanelWrapper>Layers, color picker, etc
-    <ColorPicker color={props.color} onColorChange={props.onColorChange} />
+    <br />
+    Color 1<ColorPicker color={props.color} onColorChange={props.onColorChange} />
+    Color 2<ColorPicker color={props.color2} onColorChange={props.onColor2Change} />
+
+    <button onClick={(e) => swapColors()}>
+      Swap Colors
+    </button>
+  
+    <br />
 
     These buttons apply to all currently selected (active) layers
 
