@@ -1,23 +1,23 @@
-import React from 'react';
-import './Import.css';
+import React from '../../node_modules/react';
+import './import.css';
 
 function clickInput() {
     document.getElementById('file').click();
 }
 
-export default function ImportImage(props){
-    function importImage(){
+export default function ImportImage(props) {
+    function importImage() {
         let file = document.getElementById('file')
         let fr = new FileReader();
-        fr.onload = function(e) {
+        fr.onload = function (e) {
             let urlStyle = e.target.result;
             let image = new Image();
-            image.onload = function() {
+            image.onload = function () {
                 let canvas = document.createElement('canvas');
                 canvas.width = image.width;
-                canvas.height = image.height;                
+                canvas.height = image.height;
                 let ctx = canvas.getContext('2d');
-                ctx.drawImage(image, 0,0, image.width, image.height);
+                ctx.drawImage(image, 0, 0, image.width, image.height);
 
                 for (let x = 0; x < props.mainComp.layers[0].width; x++) {
                     for (let y = 0; y < props.mainComp.layers[0].height; y++) {
@@ -30,20 +30,20 @@ export default function ImportImage(props){
                             props.mainComp.layers[idx].pixelData[x][y].a = data[3];
                         }
 
-                        if(y + 1 > image.height) {
+                        if (y + 1 > image.height) {
                             break;
                         }
                     }
 
-                    if(x + 1 > image.width) {
+                    if (x + 1 > image.width) {
                         break;
                     }
                 }
                 props.changeOneTimeEvent("redrawCanvas");
             };
-            image.src = urlStyle;            
+            image.src = urlStyle;
         };
-        if(file !== null){
+        if (file !== null) {
             fr.readAsDataURL(file.files[0]);
         }
     }
@@ -51,7 +51,7 @@ export default function ImportImage(props){
     return (
         <span>
             <button className="import-btn" onClick={clickInput}>Open File</button>
-            <input type="file" id="file" onChange={importImage} style={{display:"none"}}></input>
+            <input type="file" id="file" onChange={importImage} style={{ display: "none" }}></input>
         </span>
     );
 }

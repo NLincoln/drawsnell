@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import download from 'downloadjs';
-import styled from "@emotion/styled";
+import React, { Component } from '../../node_modules/react';
+import download from '../../node_modules/downloadjs';
+import styled from "../../node_modules/@emotion/styled";
 
-import './Export.css';
+import './export.css';
 
 const Grid = styled.div`
   display: grid;

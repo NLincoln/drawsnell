@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { TOOLS } from "./tools";
+import { TOOLS } from "./tools/tools";
 
 const SidebarWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
