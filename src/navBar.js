@@ -1,8 +1,8 @@
 import React from "react";
-import Export from "./Export"
-import Save from "./Save"
-import ImportImage from './ImportImage'
-import ImportFunction from './ImportJSON'
+import Export from "./saving/export";
+import Save from "./saving/save";
+import ImportImage from './opening/image';
+import ImportFunction from './opening/json';
 import styled from "@emotion/styled";
 
 const NavBarWrapper = styled.div`

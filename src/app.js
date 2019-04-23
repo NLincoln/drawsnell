@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Canvas from "./Canvas";
-import NavBar from "./NavBar";
-import ToolChest from "./Toolchest";
-import RightPanel from "./RightPanel";
-import Composition from "./layers";
-import { useToolHandler } from "./tools";
+import Canvas from "./canvas";
+import NavBar from "./navBar";
+import ToolChest from "./toolchest";
+import RightPanel from "./rightPanel";
+import Composition from "./layers/layers";
+import { useToolHandler } from "./tools/tools";
 import styled from "@emotion/styled";
 
 const Grid = styled.div`

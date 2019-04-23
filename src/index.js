@@ -4,7 +4,7 @@ import "./index.css";
 import "typeface-roboto";
 
 function render() {
-  let App = require("./App").default;
+  let App = require("./app").default;
   ReactDOM.render(<App />, document.getElementById("root"));
 }
 
@@ -30,7 +30,7 @@ render();
  * export
  */
 if (module.hot) {
-  module.hot.accept("./App", () => {
+  module.hot.accept("./app", () => {
     ReactDOM.unmountComponentAtNode(document.getElementById("root"));
     render();
   });

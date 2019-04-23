@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "../../node_modules/react";
 
 // Object.freeze means this object can't be modified later
 export const TOOLS = Object.freeze({
@@ -21,6 +21,7 @@ export const TOOL_CURSORS = Object.freeze({
   fill: "crosshair", // Placeholder
   select: "cell", // Placeholder
 });
+
 // only locally available: all interactions should
 // go through toolShortcutHandler
 const TOOL_KEYS = {
