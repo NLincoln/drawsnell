@@ -57,6 +57,8 @@ export default function App() {
   });
 
   let [radius, setRadius] = useState(1);
+  let [selection, setSelection] = useState(null);
+  let [tolerance, setTolerance] = useState(60);
 
   return (
     <Grid>
@@ -80,6 +82,9 @@ export default function App() {
           activeLayers={activeLayers}
           changeActiveLayers={changeActiveLayers}
           radius={radius}
+          tolerance={tolerance}
+          selection={selection}
+          setSelection={setSelection}
         />
       </GridArea>
       <GridArea area={"toolchest"}>
@@ -88,6 +93,8 @@ export default function App() {
           onToolChange={onToolChange}
           setRadius={setRadius}
           radius={radius}
+          tolerance={tolerance}
+          setTolerance={setTolerance}
         />
       </GridArea>
       <GridArea area={"right-panel"}>

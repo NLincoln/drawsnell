@@ -6,6 +6,7 @@ export const TOOLS = Object.freeze({
   erase: 'erase',
   fill: 'fill',
   select: 'select',
+  magicWand: 'magicWand',
   brush: 'brush',
   questionTool: 'questionTool',
   line: 'line',
@@ -28,7 +29,8 @@ const TOOL_KEYS = {
   d: TOOLS.draw,
   e: TOOLS.erase,
   f: TOOLS.fill,
-  l: TOOLS.select
+  l: TOOLS.select,
+  m: TOOLS.magicWand
 };
 
 /**

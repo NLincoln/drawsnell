@@ -220,6 +220,13 @@ export default function RightPanel(props) {
     props.onColorChange(tempcolor2);
     props.onColor2Change(tempcolor);
   }
+  
+  function clearSelection()
+  {
+    // window.alert("cleared selection?");
+    props.changeOneTimeEvent("clearSelection");
+  }
+
 
   ///////////////////////////////
   // dynamic layer GUI manager //
@@ -299,6 +306,10 @@ export default function RightPanel(props) {
     <button onClick={(e) => swapColors()}>
       Swap Colors
     </button>
+    
+    <br />
+    
+    <button onClick={() => clearSelection()}>Clear Selection</button>
   
     <br />
 

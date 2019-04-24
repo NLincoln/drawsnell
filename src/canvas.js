@@ -10,6 +10,7 @@ import brush from "./tools/brush";
 import calligraphy from "./tools/calligraphy";
 import draw from "./tools/draw";
 import fill from "./tools/fill";
+import magicWand from "./tools/magicWand";
 import question from "./tools/question";
 import sprinkle from "./tools/sprinkle";
 
@@ -138,9 +139,9 @@ function lineFill(event, mainComp, activeLayers, drawColor, radius, startPositio
     draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
 }
 
-function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius }) {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection }) {
   let realCanvasRef = useRef(null);
-  let [selection, setSelection] = useState(null);
+  
   let [preview, setPreview] = useState(null);
   let previousMouseEvent = useRef(null);
   let [isDragging, setIsDragging] = useState(false);
@@ -168,6 +169,9 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
           switch (currentTool) {
             case TOOLS.select:
               this.beginSelection(event);
+              break;
+            case TOOLS.magicWand:
+              this.magicWandEvent(event, mainComp, activeLayers, tolerance)
               break;
             case TOOLS.fill:
               this.fillEvent(event, mainComp, activeLayers, drawColor);
@@ -295,6 +299,16 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       this.interact(canvas => fill(event, canvas, mainComp, activeLayers, fillColor));
       this.compositeLayersForAllPixels(mainComp);
     },
+    
+    magicWandEvent(event, mainComp, activeLayers, tolerance)
+    {
+      let position = getPixelCoordsOfEvent(event);
+      setSelection(({
+        origin: null,
+        destination: null,
+        magicWandSelectedPixels: magicWand(mainComp, tolerance, position)
+      }));
+    },
 
     /**
      * Sets the color of both canvases
@@ -361,7 +375,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       let position = getPixelCoordsOfEvent(event);
       setSelection({
         origin: position,
-        destination: position
+        destination: position,
+        magicWandSelectedPixels: null
       });
     },
 
@@ -369,7 +384,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       let position = getPixelCoordsOfEvent(event);
       setSelection(prev => ({
         origin: prev.origin,
-        destination: position
+        destination: position,
+        magicWandSelectedPixels: null
       }));
     },
 
@@ -491,34 +507,57 @@ function getBackgroundColorForPixel({ x, y }) {
 }
 
 function SelectedCanvas(props) {
+  
+  
   // really just returns a canvas that is transparent save for a box detailing
   // the selection
   let { selection, canvas } = props;
   let ref = useRef(null);
-  let { origin, destination } = selection;
-
+  let { origin, destination, magicWandSelectedPixels } = selection;
+  
   React.useLayoutEffect(() => {
     let canvas = ref.current;
     let ctx = canvas.getContext("2d");
     ctx.scale(TILE_SIZE, TILE_SIZE);
   }, []);
+  
+  let selectionColor = `rgba(0, 180, 255, 0.35)`;
+  
+  if(magicWandSelectedPixels == null)
+  {
 
-  React.useLayoutEffect(() => {
-    let canvas = ref.current;
-    let ctx = canvas.getContext("2d");
-    ctx.fillStyle = "black";
-    let width = Math.abs(origin.x - destination.x) + 1;
-    let height = Math.abs(origin.y - destination.y) + 1;
-    let top = Math.min(origin.y, destination.y);
-    let left = Math.min(origin.x, destination.x);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // So strokeRect exists, but the selection is slightly off.
-    // instead, I'm going to do this the hacky way: fill a black rectangle
-    // then clear the inside
-    ctx.fillRect(left, top, width, height);
-    if (width > 2 && height > 2)
-      ctx.clearRect(left + 1, top + 1, width - 2, height - 2);
-  }, [origin, destination]);
+    React.useLayoutEffect(() => {
+      let canvas = ref.current;
+      let ctx = canvas.getContext("2d");
+      ctx.fillStyle = selectionColor;
+      let width = Math.abs(origin.x - destination.x) + 1;
+      let height = Math.abs(origin.y - destination.y) + 1;
+      let top = Math.min(origin.y, destination.y);
+      let left = Math.min(origin.x, destination.x);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // So strokeRect exists, but the selection is slightly off.
+      // instead, I'm going to do this the hacky way: fill a black rectangle
+      // then clear the inside
+      ctx.fillRect(left, top, width, height);
+      // if (width > 2 && height > 2)
+      //   ctx.clearRect(left + 1, top + 1, width - 2, height - 2);
+    }, [origin, destination, magicWandSelectedPixels]);
+  }
+  else // using magic wand tool
+  {
+    React.useLayoutEffect(() => {
+      let canvas = ref.current;
+      let ctx = canvas.getContext("2d");
+      ctx.fillStyle = selectionColor;
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // reset any pre-existing selection (visual only)
+      for(let ii = 0; ii < magicWandSelectedPixels.length; ii++)
+      {
+        let pixel = magicWandSelectedPixels[ii];
+        ctx.fillStyle = selectionColor;
+        ctx.fillRect(pixel.x, pixel.y, 1, 1);
+      }
+    }, [origin, destination, magicWandSelectedPixels]);
+  }
 
   return (
     <canvas
@@ -608,6 +647,9 @@ export default function Canvas(props) {
     activeLayers: props.activeLayers,
     drawColor: props.drawColor,
     radius: props.radius,
+    tolerance: props.tolerance,
+    selection: props.selection,
+    setSelection: props.setSelection,
   });
 
 
@@ -636,6 +678,16 @@ export default function Canvas(props) {
       );
       canvas.compositeLayersForAllPixels(props.mainComp);
     }
+    else if (props.oneTimeEvent == "clearSelection")
+    {
+
+      props.setSelection(({
+        origin: null,
+        destination: null,
+        magicWandSelectedPixels: []
+      }));
+      
+    }
     props.changeOneTimeEvent(null);
   }
   ///////////////////////////////////////////
@@ -656,7 +708,7 @@ export default function Canvas(props) {
   useEffect(() => {
     canvas.setColor(props.drawcolor);
   }, [props.drawcolor]);
-
+  
   return (
     <>
       <div style={{ position: "relative" }}>
