@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Canvas from "./Canvas";
-import NavBar from "./NavBar";
-import ToolChest from "./Toolchest";
-import RightPanel from "./RightPanel";
-import Composition from "./layers";
-import { TOOLS, useToolHandler } from "./tools";
+import Canvas from "./canvas";
+import NavBar from "./navBar";
+import ToolChest from "./toolchest";
+import RightPanel from "./rightPanel";
+import Composition from "./layers/layers";
+import { useToolHandler } from "./tools/tools";
 import styled from "@emotion/styled";
 
 const Grid = styled.div`
@@ -48,8 +48,17 @@ export default function App() {
     b: "19",
     a: "1"
   });
+  
+  let [color2, setColor2] = useState({
+    r: "0",
+    g: "0",
+    b: "255",
+    a: "1"
+  });
 
   let [radius, setRadius] = useState(1);
+  let [selection, setSelection] = useState(null);
+  let [tolerance, setTolerance] = useState(60);
 
   return (
     <Grid>
@@ -74,6 +83,9 @@ export default function App() {
           activeLayers={activeLayers}
           changeActiveLayers={changeActiveLayers}
           radius={radius}
+          tolerance={tolerance}
+          selection={selection}
+          setSelection={setSelection}
         />
       </GridArea>
       <GridArea area={"toolchest"}>
@@ -82,12 +94,16 @@ export default function App() {
           onToolChange={onToolChange}
           setRadius={setRadius}
           radius={radius}
+          tolerance={tolerance}
+          setTolerance={setTolerance}
         />
       </GridArea>
       <GridArea area={"right-panel"}>
         <RightPanel
           color={color}
+          color2={color2}
           onColorChange={setColor}
+          onColor2Change={setColor2}
           mainComp={mainComp}
           changeMainComp={changeMainComp}
           oneTimeEvent={oneTimeEvent}

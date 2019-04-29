@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorPicker from "./ColorPicker";
+import ColorPicker from "./tools/colorPicker";
 // import bmodesDict from "./blendModes";
-import bmodes from "./blendModes";
+import bmodes from "./layers/blendModes";
 
 const PanelWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -93,7 +93,7 @@ export default function RightPanel(props) {
   }
 
   function addLayer() {
-    
+
     // the default layer name depends on the current number of layers
     let currentNumLayers = props.mainComp.layers.length
     props.mainComp.addLayer("Layer " + currentNumLayers.toString());
@@ -201,19 +201,32 @@ export default function RightPanel(props) {
     document.getElementById("blendModeSelectID").value = "Blend Mode"
   }
 
-  function renameSelectedLayers()
-  {
+  function renameSelectedLayers() {
     let j = document.getElementById("LayerNameTextField").value;
-    for (let ii = 0; ii < props.activeLayers.length; ii++)
-    {
+    for (let ii = 0; ii < props.activeLayers.length; ii++) {
       let ind = props.activeLayers[ii];
       props.mainComp.layers[ind].name = j;
     }
-    
+
     // let jj = 5;
     // if (props.GUI == null) {jj = 5} else {jj = null}
     props.changeGUI(!props.GUI); // update GUI
   }
+  
+  function swapColors()
+  {
+    let tempcolor = props.color;
+    let tempcolor2 = props.color2;
+    props.onColorChange(tempcolor2);
+    props.onColor2Change(tempcolor);
+  }
+  
+  function clearSelection()
+  {
+    // window.alert("cleared selection?");
+    props.changeOneTimeEvent("clearSelection");
+  }
+
 
   ///////////////////////////////
   // dynamic layer GUI manager //
@@ -286,7 +299,19 @@ export default function RightPanel(props) {
   }
 
   return <PanelWrapper>Layers, color picker, etc
-    <ColorPicker color={props.color} onColorChange={props.onColorChange} />
+    <br />
+    Color 1<ColorPicker color={props.color} onColorChange={props.onColorChange} />
+    Color 2<ColorPicker color={props.color2} onColorChange={props.onColor2Change} />
+
+    <button onClick={(e) => swapColors()}>
+      Swap Colors
+    </button>
+    
+    <br />
+    
+    <button onClick={() => clearSelection()}>Clear Selection</button>
+  
+    <br />
 
     These buttons apply to all currently selected (active) layers
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component } from '../../node_modules/react';
 
-import './Save.css';
+import './save.css';
 
 const Modal = (props) => {
     function downloadClick() {

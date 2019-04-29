@@ -1,32 +1,36 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "../../node_modules/react";
 
 // Object.freeze means this object can't be modified later
 export const TOOLS = Object.freeze({
-    draw: 'draw',
-    erase: 'erase',
-    fill: 'fill',
-    select: 'select',
-    brush: 'brush',
-    questionTool: 'questionTool',
-    line: 'line',
-    continuousLine: 'continuousLine',
-    calligBrush: 'calligBrush',
-    sprinkle: 'sprinkle',
-    eyedropper: 'eyedropper',
+  draw: 'draw',
+  erase: 'erase',
+  fill: 'fill',
+  select: 'select',
+  magicWand: 'magicWand',
+  brush: 'brush',
+  questionTool: 'questionTool',
+  line: 'line',
+  continuousLine: 'continuousLine',
+  calligBrush: 'calligBrush',
+  sprinkle: 'sprinkle',
+  rectangle: 'rectangle',
+  ellipse: 'ellipse',
 });
 
 export const TOOL_CURSORS = Object.freeze({
-    erase: "alias", // Placeholder
-    fill: "crosshair", // Placeholder
-    select: "cell", // Placeholder
+  erase: "alias", // Placeholder
+  fill: "crosshair", // Placeholder
+  select: "cell", // Placeholder
 });
+
 // only locally available: all interactions should
 // go through toolShortcutHandler
 const TOOL_KEYS = {
   d: TOOLS.draw,
   e: TOOLS.erase,
   f: TOOLS.fill,
-  l: TOOLS.select
+  l: TOOLS.select,
+  m: TOOLS.magicWand
 };
 
 /**

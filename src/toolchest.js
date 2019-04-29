@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { TOOLS } from "./tools";
+import { TOOLS } from "./tools/tools";
 
 const SidebarWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -18,13 +18,27 @@ export default function Toolchest(props) {
       props.onToolChange(tool);
     }
   };
-
+  
+  
   return (
     <SidebarWrapper>
       <ul>
         <li><button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button></li>
         <li><button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button></li>
         <li><button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button></li>
+        <li>
+          <button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</button>
+          &nbsp;Tolerance:
+          <input
+            type="number"
+            min="0"
+            max="255"
+            value={props.tolerance}
+            onChange={event => {
+              props.setTolerance(Number(event.target.value));
+            }}
+          />
+        </li>
         <li><button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button></li>
         <li><button onClick={() => toggleTool(TOOLS.line)}>Line</button></li>
         <li><button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button></li>
@@ -32,9 +46,10 @@ export default function Toolchest(props) {
         <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
         <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
         <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.eyedropper)}>Eyedropper</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button></li>
       </ul>
-      <div class="radiusSlider">
+      <div>
         <p>
           Radius:
           <input
