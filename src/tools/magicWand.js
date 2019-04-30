@@ -33,7 +33,7 @@ export default function magicWand(mainComp, tolerance, sourcePosition)
       willSelect = false;
     }
     
-    // if the source alpha is zero, select a pixel if it's alpha is zero
+    // if the source alpha is zero, select a pixel if its alpha is zero
     if(source.a == 0 && toChose.a == 0)
     {
       willSelect = true;

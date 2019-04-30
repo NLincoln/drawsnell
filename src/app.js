@@ -111,6 +111,8 @@ export default function App() {
           changeActiveLayers={changeActiveLayers}
           GUI={GUI}
           changeGUI={changeGUI}
+          selection={selection}
+          setSelection={setSelection}
         />
       </GridArea>
     </Grid>

@@ -306,7 +306,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       setSelection(({
         origin: null,
         destination: null,
-        magicWandSelectedPixels: magicWand(mainComp, tolerance, position)
+        magicWandSelectedPixels: magicWand(mainComp, tolerance, position),
+        rectangleSelectedPixels: null
       }));
     },
 
@@ -373,19 +374,44 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
      */
     beginSelection(event) {
       let position = getPixelCoordsOfEvent(event);
+      let pixlist = []
+      pixlist.push({x:position.x, y:position.y});
       setSelection({
         origin: position,
         destination: position,
-        magicWandSelectedPixels: null
+        magicWandSelectedPixels: null,
+        rectangleSelectedPixels: pixlist
       });
     },
 
     adjustSelection(event) {
       let position = getPixelCoordsOfEvent(event);
+      
+      
+      function getSelectedPixels(origin, destination)
+      {
+        let pixlist = []
+        let width = Math.abs(origin.x - destination.x) + 1;
+        let height = Math.abs(origin.y - destination.y) + 1;
+        let top = Math.min(origin.y, destination.y);
+        let left = Math.min(origin.x, destination.x);
+        
+        for(let xx = left; xx < left + width; xx++)
+        {
+          for(let yy = top; yy < top + height; yy++)
+          {
+            pixlist.push({x:xx, y:yy});
+          }
+        }
+        return pixlist
+      }
+      
+      // pixlist.push({x:position.x, y:position.y});
       setSelection(prev => ({
         origin: prev.origin,
         destination: position,
-        magicWandSelectedPixels: null
+        magicWandSelectedPixels: null,
+        rectangleSelectedPixels: getSelectedPixels(prev.origin, position)
       }));
     },
 
@@ -523,7 +549,7 @@ function SelectedCanvas(props) {
   
   let selectionColor = `rgba(0, 180, 255, 0.35)`;
   
-  if(magicWandSelectedPixels == null)
+  if(magicWandSelectedPixels == null) // if the select tool was used instead of magic wand tool
   {
 
     React.useLayoutEffect(() => {
@@ -538,7 +564,7 @@ function SelectedCanvas(props) {
       // So strokeRect exists, but the selection is slightly off.
       // instead, I'm going to do this the hacky way: fill a black rectangle
       // then clear the inside
-      ctx.fillRect(left, top, width, height);
+      ctx.fillRect(left, top, width, height);     
       // if (width > 2 && height > 2)
       //   ctx.clearRect(left + 1, top + 1, width - 2, height - 2);
     }, [origin, destination, magicWandSelectedPixels]);
@@ -684,7 +710,8 @@ export default function Canvas(props) {
       props.setSelection(({
         origin: null,
         destination: null,
-        magicWandSelectedPixels: []
+        magicWandSelectedPixels: [],
+        rectangleSelectedPixels: null
       }));
       
     }
