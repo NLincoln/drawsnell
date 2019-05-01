@@ -9,10 +9,11 @@ import styled from "@emotion/styled";
 
 const Grid = styled.div`
   display: grid;
-  grid-gap: 16px;
+  grid-template-columns: 1fr 3fr;
   grid-template-areas:
-    "navbar navbar navbar navbar navbar"
-    "toolchest canvas canvas canvas right-panel";
+    "navbar canvas"
+    "toolchest canvas"
+    "right-panel canvas";
 `;
 
 const GridArea = styled.div`
@@ -48,7 +49,7 @@ export default function App() {
     b: "19",
     a: "1"
   });
-  
+
   let [color2, setColor2] = useState({
     r: "0",
     g: "0",
