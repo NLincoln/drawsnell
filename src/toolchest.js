@@ -18,37 +18,36 @@ export default function Toolchest(props) {
       props.onToolChange(tool);
     }
   };
-  
-  
+
   return (
     <SidebarWrapper>
-      <ul>
-        <li><button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button></li>
-        <li>
-          <button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</button>
-          &nbsp;Tolerance:
-          <input
-            type="number"
-            min="0"
-            max="255"
-            value={props.tolerance}
-            onChange={event => {
-              props.setTolerance(Number(event.target.value));
-            }}
-          />
-        </li>
-        <li><button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.line)}>Line</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.brush)}>Brush</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button></li>
-      </ul>
+      <button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button>
+      <button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button>
+      <button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button>
+      <button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</button>
+      &nbsp;Tolerance:
+      <input
+        type="number"
+        min="0"
+        max="255"
+        value={props.tolerance}
+        onChange={event => {
+          props.setTolerance(Number(event.target.value));
+        }}
+      />
+      <button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button>
+      <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
+      <button onClick={() => toggleTool(TOOLS.continuousLine)}>
+        Continuous Line
+      </button>
+      <button onClick={() => toggleTool(TOOLS.brush)}>Brush</button>
+      <button onClick={() => toggleTool(TOOLS.calligBrush)}>
+        Calligraphy Brush
+      </button>
+      <button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button>
+      <button onClick={() => toggleTool(TOOLS.questionTool)}>?</button>
+      <button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button>
+      <button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button>
       <div>
         <p>
           Radius:
