@@ -10,6 +10,20 @@ const SidebarWrapper = styled.div`
   height: 100%;
 `;
 
+const Grid = styled.div`
+  display: grid;
+  grid-template-areas:
+    "drawtool eraser"
+    "brush line"
+    "rectangle ellipse"
+    "fill eyedropper"
+    "move select";
+`;
+
+const GridArea = styled.div`
+  grid-area: ${props => props["area"]};
+`;
+
 export default function Toolchest(props) {
   const toggleTool = tool => {
     if (props.currentTool === tool) {
@@ -22,10 +36,39 @@ export default function Toolchest(props) {
 
   return (
     <SidebarWrapper>
-      <Button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</Button>
-      <button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button>
-      <button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button>
-      <button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</button>
+      <Grid>
+        <GridArea area={"drawtool"}>
+          <Button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</Button>
+        </GridArea>
+        <GridArea area={"eraser"}>
+          <Button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</Button>
+        </GridArea>
+        <GridArea area={"brush"}>
+          <Button onClick={() => toggleTool(TOOLS.brush)}>Brush</Button>
+        </GridArea>
+        <GridArea area={"line"}>
+          <Button onClick={() => toggleTool(TOOLS.line)}>Line</Button>
+        </GridArea>
+        <GridArea area={"rectangle"}>
+          <Button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</Button>
+        </GridArea>
+        <GridArea area={"ellipse"}>
+          <Button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</Button>
+        </GridArea>
+        <GridArea area={"fill"}>
+          <Button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</Button>
+        </GridArea>
+        <GridArea area={"eyedropper"}>
+          <Button>Eyedropper</Button>
+        </GridArea>
+        <GridArea area={"move"}>
+          <Button>Move</Button>
+        </GridArea>
+        <GridArea area={"select"}>
+          <Button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</Button>
+        </GridArea>
+      </Grid>
+      <Button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</Button>
       &nbsp;Tolerance:
       <input
         type="number"
@@ -36,19 +79,14 @@ export default function Toolchest(props) {
           props.setTolerance(Number(event.target.value));
         }}
       />
-      <button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button>
-      <button onClick={() => toggleTool(TOOLS.line)}>Line</button>
-      <button onClick={() => toggleTool(TOOLS.continuousLine)}>
+      <Button onClick={() => toggleTool(TOOLS.continuousLine)}>
         Continuous Line
-      </button>
-      <button onClick={() => toggleTool(TOOLS.brush)}>Brush</button>
-      <button onClick={() => toggleTool(TOOLS.calligBrush)}>
+      </Button>
+      <Button onClick={() => toggleTool(TOOLS.calligBrush)}>
         Calligraphy Brush
-      </button>
-      <button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button>
-      <button onClick={() => toggleTool(TOOLS.questionTool)}>?</button>
-      <button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button>
-      <button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button>
+      </Button>
+      <Button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</Button>
+      <Button onClick={() => toggleTool(TOOLS.questionTool)}>?</Button>
       <div>
         <p>
           Radius:
