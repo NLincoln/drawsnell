@@ -13,6 +13,8 @@ import fill from "./tools/fill";
 import magicWand from "./tools/magicWand";
 import question from "./tools/question";
 import sprinkle from "./tools/sprinkle";
+import rectangle from "./tools/rectangle";
+import ellipse from "./tools/ellipse";
 
 import {
   TOOLS
@@ -69,10 +71,13 @@ function drawOnCanvas(event, prevEvent, tool, mainComp, activeLayers, drawColor,
     if (position.x === prevPosition.x && position.y === prevPosition.y)
       return;
 
-    let pointsToFill = bresenham(prevPosition, position);
-    for (let point of pointsToFill)
-      useTool(tool, mainComp, activeLayers, point, radius, drawColor);
-
+    if (prevPosition.x && prevPosition.y) {
+      let pointsToFill = bresenham(prevPosition, position);
+      for (let point of pointsToFill)
+        useTool(tool, mainComp, activeLayers, point, radius, drawColor);
+    } else {
+      useTool(tool, mainComp, activeLayers, position, radius, drawColor);
+    }
   } else {
     useTool(tool, mainComp, activeLayers, position, radius, drawColor);
   }
@@ -163,9 +168,6 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
           if (preview)
             this.clearPreview();
 
-          if (startPosition)
-            setStartPosition(false);
-
           switch (currentTool) {
             case TOOLS.select:
               this.beginSelection(event);
@@ -175,23 +177,27 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
               break;
             case TOOLS.fill:
               this.fillEvent(event, mainComp, activeLayers, drawColor);
+              setStartPosition(false);
               break;
             case TOOLS.line:
-              this.beginLine(event);
+              this.beginPreview(event, currentTool);
               this.setStartPositionCoordEvent(event);
               break;
             case TOOLS.continuousLine:
-              this.beginLine(event);
+              this.beginPreview(event, TOOLS.line);
               this.drawContinuousLineEvent(event, mainComp, activeLayers, drawColor, radius);
               break;
             case TOOLS.rectangle:
-              this.beginRect(event);
+              this.beginPreview(event, currentTool);
               this.setStartPositionCoordEvent(event);
               break;
             case TOOLS.ellipse:
+              this.beginPreview(event, currentTool);
+              this.setStartPositionCoordEvent(event);
               break;
             default:
               this.drawEvent(event, null, currentTool, mainComp, activeLayers, drawColor, radius);
+              setStartPosition(false);
               break;
           }
         },
@@ -202,8 +208,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
         },
 
         onMouseMove: event => {
-          if (currentTool === TOOLS.continuousLine && startPosition)
-            this.adjustLine(event);
+          if (currentTool === TOOLS.continuousLine && startPosition && preview)
+            this.adjustPreview(event, TOOLS.line);
 
           if (!isDragging)
             return;
@@ -213,10 +219,15 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
               this.adjustSelection(event);
               break;
             case TOOLS.line:
-              this.adjustLine(event);
+              this.adjustPreview(event, currentTool);
               break;
             case TOOLS.rectangle:
-              this.adjustRect(event);
+              this.adjustPreview(event, currentTool);
+              break;
+            case TOOLS.ellipse:
+              this.adjustPreview(event, currentTool);
+              break;
+            case TOOLS.continuousLine:
               break;
             default:
               this.drawEvent(event, previousMouseEvent.current, currentTool, mainComp, activeLayers, drawColor, radius);
@@ -238,6 +249,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
               break;
             case TOOLS.rectangle:
               this.applyRect(event, mainComp, activeLayers, drawColor, radius);
+              this.clearPreview();
+              break;
+            case TOOLS.ellipse:
+              this.applyEllipse(event, mainComp, activeLayers, drawColor, radius);
               this.clearPreview();
               break;
             default:
@@ -415,47 +430,25 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       }));
     },
 
-    // Begins previewing a line.
-    beginLine(event) {
+    // Begins previewing a tool.
+    beginPreview(event, currentTool) {
       let position = getPixelCoordsOfEvent(event);
       setPreview({
         origin: position,
         destination: position,
         radius: radius,
-        tool: TOOLS.line
+        tool: currentTool
       });
     },
 
-    // Updates the currently previewed line.
-    adjustLine(event) {
+    // Updates the currently previewed tool.
+    adjustPreview(event, currentTool) {
       let position = getPixelCoordsOfEvent(event);
       setPreview(prev => ({
         origin: prev.origin,
         destination: position,
         radius: radius,
-        tool: TOOLS.line
-      }));
-    },
-
-    // Begins previewing a rectangle.
-    beginRect(event) {
-      let position = getPixelCoordsOfEvent(event);
-      setPreview({
-        origin: position,
-        destination: position,
-        radius: radius,
-        tool: TOOLS.rectangle
-      });
-    },
-
-    // Updates the currently previewed rectangle.
-    adjustRect(event) {
-      let position = getPixelCoordsOfEvent(event);
-      setPreview(prev => ({
-        origin: prev.origin,
-        destination: position,
-        radius: radius,
-        tool: TOOLS.rectangle
+        tool: currentTool
       }));
     },
 
@@ -464,36 +457,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       if (!startPosition)
         return;
 
-      let position = getPixelCoordsOfEvent(event);
+      let rectanglePoints = rectangle(startPosition, getPixelCoordsOfEvent(event));
 
-      // Gets the positions of each side of the rectangle.
-      let top = Math.min(startPosition.y - radius + 1, position.y - radius + 1);
-      let bottom = top + Math.abs(startPosition.y - position.y) + 2 * radius - 2;
-      let left = Math.min(startPosition.x - radius + 1, position.x - radius + 1);
-      let right = left + Math.abs(startPosition.x - position.x) + 2 * radius - 2;
-
-      // Gets the positions of the inner area of the rectangle.
-      let inner_top = null;
-      let inner_bottom = null;
-      let inner_left = null;
-      let inner_right = null;
-
-      // Checks if the rectangle is big enough to need to have an inner area.
-      let inner = false;
-
-      if (right - left > radius * 2 - 1 && bottom - top > radius * 2 - 1) {
-        inner_top = top + radius;
-        inner_bottom = bottom - radius;
-        inner_left = left + radius;
-        inner_right = right - radius;
-        inner = true;
-      }
-
-      // Draws the rectangle on the canvas.
-      for (let x = left; x <= right; x++)
-        for (let y = top; y <= bottom; y++)
-          if (!inner || (x < inner_left || x > inner_right || y < inner_top || y > inner_bottom))
-            draw(mainComp, activeLayers, x, y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, 1);
+      for (let point of rectanglePoints)
+        draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
 
       // Updates the canvas with the rectangle.
       this.compositeLayersForAllPixels(mainComp);
@@ -502,6 +469,22 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       setStartPosition(false);
     },
 
+    // Draws a rectangle on the canvas based on the starting and ending positions.
+    applyEllipse(event, mainComp, activeLayers, drawColor, radius) {
+      if (!startPosition)
+        return;
+
+      let ellipsePoints = ellipse(startPosition, getPixelCoordsOfEvent(event));
+
+      for (let point of ellipsePoints)
+        draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
+
+      // Updates the canvas with the rectangle.
+      this.compositeLayersForAllPixels(mainComp);
+
+      // Unsets the starting position.
+      setStartPosition(false);
+    },
     // Clears the preview.
     clearPreview() {
       setPreview(null);
@@ -632,17 +615,18 @@ function PreviewCanvas(props) {
         break;
 
       case TOOLS.rectangle:
-        // Gets the coordinates of the outer rectangle.
-        let width = Math.abs(origin.x - destination.x) + 2 * radius - 1;
-        let height = Math.abs(origin.y - destination.y) + 2 * radius - 1;
-        let top = Math.min(origin.y - radius + 1, destination.y - radius + 1);
-        let left = Math.min(origin.x - radius + 1, destination.x - radius + 1);
+        let rectanglePoints = rectangle(origin, destination);
 
-        ctx.fillRect(left, top, width, height);
+        for (let point of rectanglePoints)
+          ctx.fillRect(point.x - radius + 1, point.y - radius + 1, radius * 2 - 1, radius * 2 - 1);
 
-        // Removes space in the center based on the specifications.
-        if (width > radius * 2 - 1 && height > radius * 2 - 1)
-          ctx.clearRect(left + radius, top + radius, width - 2 * radius, height - 2 * radius);
+        break;
+
+      case TOOLS.ellipse:
+        let ellipsePoints = ellipse(origin, destination);
+
+        for (let point of ellipsePoints)
+          ctx.fillRect(point.x - radius + 1, point.y - radius + 1, radius * 2 - 1, radius * 2 - 1)
 
         break;
 
