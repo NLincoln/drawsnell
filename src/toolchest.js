@@ -46,6 +46,7 @@ export default function Toolchest(props) {
         <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
         <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
         <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
+        <li><button onClick={() => toggleTool(TOOLS.eyedropper)}>Eyedropper</button></li>
         <li><button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button></li>
         <li><button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button></li>
       </ul>

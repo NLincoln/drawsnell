@@ -13,6 +13,7 @@ export const TOOLS = Object.freeze({
   continuousLine: 'continuousLine',
   calligBrush: 'calligBrush',
   sprinkle: 'sprinkle',
+  eyedropper: 'eyedropper',
   rectangle: 'rectangle',
   ellipse: 'ellipse',
 });

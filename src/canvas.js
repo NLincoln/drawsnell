@@ -13,6 +13,7 @@ import fill from "./tools/fill";
 import magicWand from "./tools/magicWand";
 import question from "./tools/question";
 import sprinkle from "./tools/sprinkle";
+import eyedropper from "./tools/eyedropper";
 
 import {
   TOOLS
@@ -139,7 +140,7 @@ function lineFill(event, mainComp, activeLayers, drawColor, radius, startPositio
     draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
 }
 
-function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection }) {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection, setColor }) {
   let realCanvasRef = useRef(null);
   
   let [preview, setPreview] = useState(null);
@@ -189,6 +190,9 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
               this.setStartPositionCoordEvent(event);
               break;
             case TOOLS.ellipse:
+              break;
+            case TOOLS.eyedropper:
+              this.eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor);
               break;
             default:
               this.drawEvent(event, null, currentTool, mainComp, activeLayers, drawColor, radius);
@@ -298,6 +302,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
     fillEvent(event, mainComp, activeLayers, fillColor) {
       this.interact(canvas => fill(event, canvas, mainComp, activeLayers, fillColor));
       this.compositeLayersForAllPixels(mainComp);
+    },
+
+    eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor) {
+      this.interact(canvas => eyedropper(event, mainComp, activeLayers, drawColor, setColor));
     },
     
     magicWandEvent(event, mainComp, activeLayers, tolerance)
@@ -650,6 +658,7 @@ export default function Canvas(props) {
     tolerance: props.tolerance,
     selection: props.selection,
     setSelection: props.setSelection,
+    setColor: props.setColor,
   });
 
 
