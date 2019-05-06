@@ -668,6 +668,7 @@ export default function Canvas(props) {
     tolerance: props.tolerance,
     selection: props.selection,
     setSelection: props.setSelection,
+    setColor: props.setColor,
   });
 
 
