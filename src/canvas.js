@@ -15,6 +15,7 @@ import question from "./tools/question";
 import sprinkle from "./tools/sprinkle";
 import rectangle from "./tools/rectangle";
 import ellipse from "./tools/ellipse";
+import eyedropper from "./tools/eyedropper";
 
 import {
   TOOLS
@@ -144,7 +145,7 @@ function lineFill(event, mainComp, activeLayers, drawColor, radius, startPositio
     draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
 }
 
-function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection }) {
+function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection, setColor }) {
   let realCanvasRef = useRef(null);
   
   let [preview, setPreview] = useState(null);
@@ -194,6 +195,9 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
             case TOOLS.ellipse:
               this.beginPreview(event, currentTool);
               this.setStartPositionCoordEvent(event);
+              break;
+            case TOOLS.eyedropper:
+              this.eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor);
               break;
             default:
               this.drawEvent(event, null, currentTool, mainComp, activeLayers, drawColor, radius);
@@ -313,6 +317,10 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
     fillEvent(event, mainComp, activeLayers, fillColor) {
       this.interact(canvas => fill(event, canvas, mainComp, activeLayers, fillColor));
       this.compositeLayersForAllPixels(mainComp);
+    },
+
+    eyedropperEvent(event, mainComp, activeLayers, drawColor, setColor) {
+      this.interact(canvas => eyedropper(event, mainComp, activeLayers, drawColor, setColor));
     },
     
     magicWandEvent(event, mainComp, activeLayers, tolerance)
