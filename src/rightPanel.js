@@ -223,8 +223,41 @@ export default function RightPanel(props) {
   
   function clearSelection()
   {
-    // window.alert("cleared selection?");
+    // window.alert("cleared selection");
     props.changeOneTimeEvent("clearSelection");
+  }
+  
+  function deleteSelectedPixels()
+  {
+    // window.alert("cleared selected pixels");
+    let j = props.selection
+    
+    for (let ii = 0; ii < props.activeLayers.length; ii++) 
+    {
+      let ind = props.activeLayers[ii];
+      
+      let whichPixels = null
+      if(props.selection.magicWandSelectedPixels != null)
+      {
+        whichPixels = props.selection.magicWandSelectedPixels
+      }
+      else // if(props.selection.magicWandSelectedPixels != null) // strict else may be safer
+      {
+        whichPixels = props.selection.rectangleSelectedPixels
+      }
+      for(let pixind = 0; pixind < whichPixels.length; pixind++)
+      {
+        let xx = whichPixels[pixind].x
+        let yy = whichPixels[pixind].y
+        props.mainComp.layers[ind].pixelData[xx][yy].r = 255;
+        props.mainComp.layers[ind].pixelData[xx][yy].g = 255;
+        props.mainComp.layers[ind].pixelData[xx][yy].b = 255;
+        props.mainComp.layers[ind].pixelData[xx][yy].a = 0;
+      }
+    }
+    props.changeOneTimeEvent("redrawCanvas");
+    
+    // window.alert(j)
   }
 
 
@@ -331,6 +364,10 @@ export default function RightPanel(props) {
 
     <button onClick={(e) => clearLayers()}>
       Clear
+    </button>
+    
+    <button onClick={(e) => deleteSelectedPixels()}>
+      Clear Selected Pixels
     </button>
 
     <br />
