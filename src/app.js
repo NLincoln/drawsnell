@@ -75,6 +75,7 @@ export default function App() {
       <GridArea area={"canvas"}>
         <Canvas
           drawColor={color}
+          setColor={setColor}
           currentTool={currentTool}
           mainComp={mainComp}
           oneTimeEvent={oneTimeEvent}

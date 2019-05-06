@@ -56,6 +56,13 @@ export function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
     return false;
 }
 
+export function getActualColorAtLayerCoord(mainComp, activeLayers, x, y) {
+    if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+      return mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
+    }
+    return false;
+  }
+
 // this overwrites the contents of the given layers and replaces them with the specified color
 // it also doesn't redraw the canvas
 export function updateLayersWithColor(mainComp, activeLayers, r, g, b, a) {
