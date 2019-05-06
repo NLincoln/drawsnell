@@ -3,11 +3,10 @@ import styled from "@emotion/styled";
 import ColorPicker from "./tools/colorPicker";
 // import bmodesDict from "./blendModes";
 import bmodes from "./layers/blendModes";
+import Button from "@material-ui/core/Button";
 
 const PanelWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
-  background-color: green;
-
   height: 100%;
 `;
 
@@ -268,8 +267,12 @@ export default function RightPanel(props) {
       <>
         {/* Layer {param.value}&nbsp;&nbsp; */}
         {props.mainComp.layers[param.value].name} &nbsp;&nbsp;
-        <button onClick={e => moveLayerUpOne(param.value)}>&#9650;</button>
-        <button onClick={e => moveLayerDownOne(param.value)}>&#9660;</button>
+        <Button variant="raised" onClick={e => moveLayerUpOne(param.value)}>
+          &#9650;
+        </Button>
+        <Button variant="raised" onClick={e => moveLayerDownOne(param.value)}>
+          &#9660;
+        </Button>
         {/* doesn't work and I'm not sure why */}
         {/* <select id={bmodeSelectID} onChange={(e) => changeBlendMode(param.value, bmodeSelectID)} >
       <option value="Blend Mode">Blend Mode</option>
@@ -277,10 +280,12 @@ export default function RightPanel(props) {
       <option value="Add">Add</option>
       <option value="Overlay">Overlay</option>
     </select> */}
-        <button onClick={e => makeLayerSolo(param.value)}>{soloString}</button>
-        <button onClick={e => toggleLayerSelect(param.value)}>
+        <Button variant="raised" onClick={e => makeLayerSolo(param.value)}>
+          {soloString}
+        </Button>
+        <Button variant="raised" onClick={e => toggleLayerSelect(param.value)}>
           {selectedString}
-        </button>
+        </Button>
         &nbsp;&nbsp;{props.mainComp.layers[param.value].blendModeStr}
         <br />
       </>
@@ -301,7 +306,7 @@ export default function RightPanel(props) {
     numbers.reverse(); // reverse the array here so higher layers are on top of lower layers, like Photoshop's layer panel
 
     return (
-      <ul>
+      <ul className="unorderedLayerList">
         {numbers.map(number => (
           <LayerItem key={number.toString()} value={number} />
         ))}
@@ -309,33 +314,87 @@ export default function RightPanel(props) {
     );
   }
 
+  const ColorGrid = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: stretch;
+    grid-template-areas:
+      "mainColor secondColor"
+      "swapColor clearColor"
+      "clear clearSelected";
+  `;
+
+  const OpacityGrid = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    grid-template-areas:
+      "labelLayer labelLayer"
+      "labelOp labelOp"
+      "up down";
+  `;
+
+  const GridArea = styled.div`
+    grid-area: ${props => props["area"]};
+  `;
+
   return (
-    <PanelWrapper>
-      Layers, color picker, etc
-      <br />
-      Color 1
-      <ColorPicker color={props.color} onColorChange={props.onColorChange} />
-      Color 2
-      <ColorPicker color={props.color2} onColorChange={props.onColor2Change} />
-      <button onClick={e => swapColors()}>Swap Colors</button>
-      <br />
-      <button onClick={() => clearSelection()}>Clear Selection</button>
-      <br />
-      These buttons apply to all currently selected (active) layers
-      <br />
-      {/* Opacity: &nbsp;&nbsp;&nbsp; */}
-      {/* Opacity: &emsp; */}
-      <button onClick={e => opacityUp()}>+</button>
-      <button onClick={e => opacityDown()}>-</button>
-      &nbsp;(Opacity)
-      <br />
-      <button onClick={e => clearLayers()}>Clear</button>
-      <button onClick={e => deleteSelectedPixels()}>
-        Clear Selected Pixels
-      </button>
-      <br />
-      <button onClick={e => deleteSelectedLayers()}>Delete</button>
-      <br />
+    <PanelWrapper className="layers">
+      <ColorGrid>
+        <GridArea className="mainColorGridArea" area="mainColor">
+          Main Color
+          <br />
+          <ColorPicker
+            color={props.color}
+            onColorChange={props.onColorChange}
+          />
+        </GridArea>
+        <GridArea className="secondColorGridArea" area="secondColor">
+          Second Color
+          <br />
+          <ColorPicker
+            color={props.color2}
+            onColorChange={props.onColor2Change}
+          />
+        </GridArea>
+        <GridArea area="swapColor">
+          <Button variant="raised" onClick={e => swapColors()}>
+            Swap Colors
+          </Button>
+        </GridArea>
+        <GridArea area="clearColor">
+          <Button variant="raised" onClick={() => clearSelection()}>
+            Clear Selection
+          </Button>
+        </GridArea>
+        <GridArea area="clear">
+          <Button variant="raised" onClick={e => clearLayers()}>
+            Clear All Pixels
+          </Button>
+        </GridArea>
+        <GridArea area="clearSelected">
+          <Button variant="raised" onClick={e => deleteSelectedPixels()}>
+            Clear Selected Pixels
+          </Button>
+        </GridArea>
+      </ColorGrid>
+      <OpacityGrid>
+        <GridArea area="labelLayer">--Layer Manager--</GridArea>
+        <GridArea area="labelOp">Layer Opacity</GridArea>
+        <GridArea area="up">
+          <Button variant="raised" onClick={e => opacityUp()}>
+            +
+          </Button>
+        </GridArea>
+        <GridArea area="down">
+          <Button variant="raised" onClick={e => opacityDown()}>
+            -
+          </Button>
+        </GridArea>
+      </OpacityGrid>
+      <Button variant="raised" onClick={e => deleteSelectedLayers()}>
+        Delete
+      </Button>
       <select
         id="blendModeSelectID"
         onChange={e => changeBlendModeForSelectedLayers()}
@@ -371,11 +430,9 @@ export default function RightPanel(props) {
         name="LayerName"
         placeholder="Enter a new layer name"
       />
-      <button onClick={e => renameSelectedLayers()}>
+      <Button variant="raised" onClick={e => renameSelectedLayers()}>
         Rename Selected Layers
-      </button>
-      <br />
-      Layer Manager
+      </Button>
       <br />
       {/* Active Layers = {props.activeLayers.join(", ")} */}
       Active Layers ={" "}
@@ -387,7 +444,9 @@ export default function RightPanel(props) {
         props.mainComp.getSolos()
       )}
       <br />
-      <button onClick={e => addLayer()}>Add New Layer</button>
+      <Button variant="raised" onClick={e => addLayer()}>
+        Add New Layer
+      </Button>
       <LayerList mainComp={props.mainComp} activeLayers={props.activeLayers} />
     </PanelWrapper>
   );
