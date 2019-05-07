@@ -1,0 +1,9 @@
+
+/* Button colors */
+.button {
+  color: inherit !important;
+}
+.buttonContained {
+  background-color: darkgreen !important;
+  width: 100%;
+}

@@ -1,6 +1,6 @@
 import React from "../../node_modules/react";
 import "./import.css";
-import Button from "@material-ui/core/Button";
+import Button from "../Button";
 
 function clickInput() {
   document.getElementById("file").click();

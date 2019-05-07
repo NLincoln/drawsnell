@@ -25,14 +25,6 @@ code {
     monospace;
 }
 
-/* Button colors */
-[class*="MuiButton"] {
-  color: inherit !important;
-}
-[class*="MuiButton-contained"] {
-  background-color: darkgreen !important;
-  width: 100%;
-}
 .darkLightToggleButton {
   justify-self: center;
 }

@@ -1,7 +1,7 @@
-import React, { Component } from "../../node_modules/react";
-import download from "../../node_modules/downloadjs";
-import styled from "../../node_modules/@emotion/styled";
-import Button from "@material-ui/core/Button";
+import React, { Component } from "react";
+import download from "downloadjs";
+import styled from "@emotion/styled";
+import Button from "../Button";
 
 import "./export.css";
 

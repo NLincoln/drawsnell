@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import ColorPicker from "./tools/colorPicker";
 // import bmodesDict from "./blendModes";
 import bmodes from "./layers/blendModes";
-import Button from "@material-ui/core/Button";
+import Button from "./Button";
 
 const PanelWrapper = styled.div`
   /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
@@ -316,6 +316,7 @@ export default function RightPanel(props) {
 
   const ColorGrid = styled.div`
     display: grid;
+    grid-gap: 24px;
     grid-template-columns: 1fr 1fr;
     justify-items: stretch;
     grid-template-areas:
@@ -392,6 +393,7 @@ export default function RightPanel(props) {
           </Button>
         </GridArea>
       </OpacityGrid>
+      <div style={{ height: 24 }} />
       <Button variant="raised" onClick={e => deleteSelectedLayers()}>
         Delete
       </Button>

@@ -2,9 +2,26 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "typeface-roboto";
 
+import JssProvider from "react-jss/lib/JssProvider";
+import { create } from "jss";
+import { createGenerateClassName, jssPreset } from "@material-ui/core/styles";
+
+const generateClassName = createGenerateClassName();
+const jss = create(jssPreset());
+jss.options.insertionPoint = document.getElementById("jss-insertion-point");
+
+function ProperJssProvider(props) {
+  return <JssProvider jss={jss} generateClassName={generateClassName} {...props} />;
+}
+
 function render() {
   let App = require("./app").default;
-  ReactDOM.render(<App />, document.getElementById("root"));
+  ReactDOM.render(
+    <ProperJssProvider>
+      <App />
+    </ProperJssProvider>,
+    document.getElementById("root")
+  );
 }
 
 render();

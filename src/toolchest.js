@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "@emotion/styled";
-import Button from "@material-ui/core/Button";
+import Button from "./Button";
 import { TOOLS } from "./tools/tools";
 
 const DoodleGrid = styled.div`
   display: grid;
+  grid-gap: 24px;
+
   grid-template-areas:
     "drawtool eraser"
     "brush line"
@@ -16,6 +18,7 @@ const DoodleGrid = styled.div`
 
 const MiscGrid = styled.div`
   display: grid;
+  grid-gap: 24px;
   grid-template-areas:
     "move select"
     "magicWand magicWandConfig"

@@ -1,6 +1,6 @@
 import React from "react";
 import Composition from "../layers/layers";
-import Button from "@material-ui/core/Button";
+import Button from "../Button";
 import "./import.css";
 
 function clickInput() {

@@ -1,6 +1,7 @@
-import React, { Component } from "../../node_modules/react";
-import Button from "@material-ui/core/Button";
-import styled from "../../node_modules/@emotion/styled";
+import React, { Component } from "react";
+import Button from "../Button";
+import styled from "@emotion/styled";
+
 import "./save.css";
 
 const Modal = props => {
