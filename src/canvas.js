@@ -140,6 +140,25 @@ function lineFill(event, mainComp, activeLayers, drawColor, radius, startPositio
     draw(mainComp, activeLayers, point.x, point.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, radius);
 }
 
+function getSelectedPixels(origin, destination)
+{
+  let pixlist = []
+  let width = Math.abs(origin.x - destination.x) + 1;
+  let height = Math.abs(origin.y - destination.y) + 1;
+  let top = Math.min(origin.y, destination.y);
+  let left = Math.min(origin.x, destination.x);
+
+  for(let xx = left; xx < left + width; xx++)
+  {
+    for(let yy = top; yy < top + height; yy++)
+    {
+      pixlist.push({x:xx, y:yy});
+    }
+  }
+  return pixlist
+}
+
+
 function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radius, tolerance, selection, setSelection, setColor }) {
   let realCanvasRef = useRef(null);
   
@@ -314,7 +333,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
       setSelection(({
         origin: null,
         destination: null,
-        magicWandSelectedPixels: magicWand(mainComp, tolerance, position)
+        magicWandSelectedPixels: magicWand(mainComp, tolerance, position),
+        rectangleSelectedPixels: null
       }));
     },
 
@@ -374,6 +394,8 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
     preview() {
       return preview;
     },
+    
+    
 
     /**
      *
@@ -381,19 +403,24 @@ function usePseudoCanvas({ currentTool, mainComp, activeLayers, drawColor, radiu
      */
     beginSelection(event) {
       let position = getPixelCoordsOfEvent(event);
+      let pixlist = []
+      pixlist.push({x:position.x, y:position.y});
       setSelection({
         origin: position,
         destination: position,
-        magicWandSelectedPixels: null
+        magicWandSelectedPixels: null,
+        rectangleSelectedPixels: pixlist
       });
     },
+
 
     adjustSelection(event) {
       let position = getPixelCoordsOfEvent(event);
       setSelection(prev => ({
         origin: prev.origin,
         destination: position,
-        magicWandSelectedPixels: null
+        magicWandSelectedPixels: null,
+        rectangleSelectedPixels: getSelectedPixels(prev.origin, position)
       }));
     },
 
@@ -693,7 +720,8 @@ export default function Canvas(props) {
       props.setSelection(({
         origin: null,
         destination: null,
-        magicWandSelectedPixels: []
+        magicWandSelectedPixels: [],
+        rectangleSelectedPixels: null
       }));
       
     }
