@@ -109,6 +109,7 @@ export default function App() {
           tolerance={tolerance}
           selection={selection}
           setSelection={setSelection}
+          setColor={setColor}
         />
       </GridArea>
     </Grid>
