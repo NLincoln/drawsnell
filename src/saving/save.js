@@ -1,5 +1,6 @@
 import React, { Component } from "../../node_modules/react";
 import Button from "@material-ui/core/Button";
+import styled from "../../node_modules/@emotion/styled";
 import "./save.css";
 
 const Modal = props => {
@@ -8,6 +9,16 @@ const Modal = props => {
 
     if (valid) props.close();
   }
+
+  const ButtonGrid = styled.div`
+    display: grid;
+    grid-gap: 16px;
+    grid-template-areas: "closeBtn saveBtn";
+  `;
+
+  const GridArea = styled.div`
+    grid-area: ${props => props["area"]};
+  `;
 
   return (
     <div
@@ -27,16 +38,26 @@ const Modal = props => {
         <input id="fileName" type="text" name="file" placeholder="File Name" />
       </div>
       <div className="modal-footer">
-        <Button variant="raised" className="btn-cancel" onClick={props.close}>
-          CLOSE
-        </Button>
-        <Button
-          variant="raised"
-          className="btn-download"
-          onClick={downloadClick}
-        >
-          SAVE
-        </Button>
+        <ButtonGrid>
+          <GridArea area="closeBtn">
+            <Button
+              variant="raised"
+              className="btn-cancel"
+              onClick={props.close}
+            >
+              CLOSE
+            </Button>
+          </GridArea>
+          <GridArea area="saveBtn">
+            <Button
+              variant="raised"
+              className="btn-download"
+              onClick={downloadClick}
+            >
+              SAVE
+            </Button>
+          </GridArea>
+        </ButtonGrid>
       </div>
     </div>
   );

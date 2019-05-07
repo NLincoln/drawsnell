@@ -40,7 +40,6 @@ code {
 .secondColorGridArea {
   justify-self: center;
 }
-
 #blendModeSelectID {
   background-color: darkgreen;
   color: black;
@@ -69,8 +68,12 @@ code {
   border: 1px solid white;
   border-radius: 5px;
 }
+.canvas {
+  overflow: hidden !important;
+}
 /* Scrollbar: */
 .leftPanel {
+  max-width: 300px;
   overflow-y: scroll;
   overflow-x: hidden;
   background-color: inherit;

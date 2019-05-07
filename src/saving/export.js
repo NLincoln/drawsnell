@@ -11,6 +11,12 @@ const Grid = styled.div`
   grid-template-areas: "fileName fileType";
 `;
 
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-gap: 16px;
+  grid-template-areas: "closeBtn downloadBtn";
+`;
+
 const GridArea = styled.div`
   grid-area: ${props => props["area"]};
 `;
@@ -55,16 +61,26 @@ const Modal = props => {
         </Grid>
       </div>
       <div className="modal-footer">
-        <Button variant="raised" className="btn-cancel" onClick={props.close}>
-          CLOSE
-        </Button>
-        <Button
-          variant="raised"
-          className="btn-download"
-          onClick={downloadClick}
-        >
-          DOWNLOAD
-        </Button>
+        <ButtonGrid>
+          <GridArea area="closeBtn">
+            <Button
+              variant="raised"
+              className="btn-cancel"
+              onClick={props.close}
+            >
+              CLOSE
+            </Button>
+          </GridArea>
+          <GridArea area="downloadBtn">
+            <Button
+              variant="raised"
+              className="btn-download"
+              onClick={downloadClick}
+            >
+              DOWNLOAD
+            </Button>
+          </GridArea>
+        </ButtonGrid>
       </div>
     </div>
   );

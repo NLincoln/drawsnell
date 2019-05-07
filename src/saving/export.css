@@ -84,10 +84,11 @@ select {
 .back-drop {
   background-color: rgba(48, 49, 48, 0.42);
   height: 100%;
-  top: 0%;
-  position: fixed;
-  transition: all 1.3s;
   width: 100%;
+  top: 0px;
+  left: 0px;
+  position: absolute;
+  transition: all 1.3s;
   z-index: 10;
 }
 
