@@ -6,13 +6,13 @@ import RightPanel from "./rightPanel";
 import Composition from "./layers/layers";
 import { useToolHandler } from "./tools/tools";
 import styled from "@emotion/styled";
+import "./app.css";
 
 const Grid = styled.div`
   display: grid;
-  grid-gap: 16px;
-  grid-template-areas:
-    "navbar navbar navbar navbar navbar"
-    "toolchest canvas canvas canvas right-panel";
+  grid-template-columns: 1fr 3fr;
+  justify-items: stretch;
+  grid-template-areas: "leftPanel canvas";
 `;
 
 const GridArea = styled.div`
@@ -48,7 +48,7 @@ export default function App() {
     b: "19",
     a: "1"
   });
-  
+
   let [color2, setColor2] = useState({
     r: "0",
     g: "0",
@@ -61,8 +61,8 @@ export default function App() {
   let [tolerance, setTolerance] = useState(60);
 
   return (
-    <Grid>
-      <GridArea area={"navbar"}>
+    <Grid className="mainGrid">
+      <GridArea area={"leftPanel"} className="leftPanel">
         <NavBar
           mainComp={mainComp}
           activeLayers={activeLayers}
@@ -71,24 +71,6 @@ export default function App() {
           oneTimeEvent={oneTimeEvent}
           changeOneTimeEvent={changeOneTimeEvent}
         />
-      </GridArea>
-      <GridArea area={"canvas"}>
-        <Canvas
-          drawColor={color}
-          setColor={setColor}
-          currentTool={currentTool}
-          mainComp={mainComp}
-          oneTimeEvent={oneTimeEvent}
-          changeOneTimeEvent={changeOneTimeEvent}
-          activeLayers={activeLayers}
-          changeActiveLayers={changeActiveLayers}
-          radius={radius}
-          tolerance={tolerance}
-          selection={selection}
-          setSelection={setSelection}
-        />
-      </GridArea>
-      <GridArea area={"toolchest"}>
         <ToolChest
           currentTool={currentTool}
           onToolChange={onToolChange}
@@ -97,8 +79,6 @@ export default function App() {
           tolerance={tolerance}
           setTolerance={setTolerance}
         />
-      </GridArea>
-      <GridArea area={"right-panel"}>
         <RightPanel
           color={color}
           color2={color2}
@@ -112,6 +92,21 @@ export default function App() {
           changeActiveLayers={changeActiveLayers}
           GUI={GUI}
           changeGUI={changeGUI}
+          selection={selection}
+          setSelection={setSelection}
+        />
+      </GridArea>
+      <GridArea area={"canvas"} className="canvas">
+        <Canvas
+          drawColor={color}
+          currentTool={currentTool}
+          mainComp={mainComp}
+          oneTimeEvent={oneTimeEvent}
+          changeOneTimeEvent={changeOneTimeEvent}
+          activeLayers={activeLayers}
+          changeActiveLayers={changeActiveLayers}
+          radius={radius}
+          tolerance={tolerance}
           selection={selection}
           setSelection={setSelection}
         />

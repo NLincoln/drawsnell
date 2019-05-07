@@ -1,12 +1,29 @@
 import React from "react";
 import styled from "@emotion/styled";
+import Button from "@material-ui/core/Button";
 import { TOOLS } from "./tools/tools";
 
-const SidebarWrapper = styled.div`
-  /* This color is only to help indicate the boundaries of this component on the page. Feel free to remove */
-  background-color: green;
+const DoodleGrid = styled.div`
+  display: grid;
+  grid-template-areas:
+    "drawtool eraser"
+    "brush line"
+    "calligBrush continuousLine"
+    "fill ellipse"
+    "rectangle sprinkle"
+    "questionMark width";
+`;
 
-  height: 100%;
+const MiscGrid = styled.div`
+  display: grid;
+  grid-template-areas:
+    "move select"
+    "magicWand magicWandConfig"
+    "eyedropper eyedropper";
+`;
+
+const GridArea = styled.div`
+  grid-area: ${props => props["area"]};
 `;
 
 export default function Toolchest(props) {
@@ -18,16 +35,109 @@ export default function Toolchest(props) {
       props.onToolChange(tool);
     }
   };
-  
-  
+
   return (
-    <SidebarWrapper>
-      <ul>
-        <li><button onClick={() => toggleTool(TOOLS.draw)}>(D)raw</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.erase)}>(E)raser</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.select)}>Se(l)ect</button></li>
-        <li>
-          <button onClick={() => toggleTool(TOOLS.magicWand)}>(M)agic Wand</button>
+    <div>
+      <DoodleGrid className="toolChest">
+        <GridArea area={"drawtool"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.draw)}>
+            (D)raw
+          </Button>
+        </GridArea>
+        <GridArea area={"eraser"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.erase)}>
+            (E)raser
+          </Button>
+        </GridArea>
+        <GridArea area={"brush"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.brush)}>
+            Brush
+          </Button>
+        </GridArea>
+        <GridArea area={"line"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.line)}>
+            Line
+          </Button>
+        </GridArea>
+        <GridArea area={"calligBrush"}>
+          <Button
+            variant="raised"
+            onClick={() => toggleTool(TOOLS.calligBrush)}
+          >
+            C-Brush
+          </Button>
+        </GridArea>
+        <GridArea area={"continuousLine"}>
+          <Button
+            variant="raised"
+            onClick={() => toggleTool(TOOLS.continuousLine)}
+          >
+            C-Line
+          </Button>
+        </GridArea>
+        <GridArea area={"fill"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.fill)}>
+            (F)ill
+          </Button>
+        </GridArea>
+        <GridArea area={"ellipse"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.ellipse)}>
+            Ellipse
+          </Button>
+        </GridArea>
+        <GridArea area={"rectangle"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.rectangle)}>
+            Rectangle
+          </Button>
+        </GridArea>
+        <GridArea area={"sprinkle"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.sprinkle)}>
+            Sprinkle
+          </Button>
+        </GridArea>
+        <GridArea area={"questionMark"}>
+          <Button
+            variant="raised"
+            onClick={() => toggleTool(TOOLS.questionTool)}
+          >
+            ?
+          </Button>
+        </GridArea>
+        <GridArea area={"width"}>
+          <div>
+            <p>
+              Width:
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={props.radius}
+                onChange={event => {
+                  props.setRadius(Number(event.target.value));
+                }}
+              />
+            </p>
+          </div>
+        </GridArea>
+      </DoodleGrid>
+      <MiscGrid className="miscChest">
+        <GridArea area={"eyedropper"}>
+          <Button variant="raised">Eyedropper</Button>
+        </GridArea>
+        <GridArea area={"move"}>
+          <Button variant="raised">Move</Button>
+        </GridArea>
+        <GridArea area={"select"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.select)}>
+            Se(l)ect
+          </Button>
+        </GridArea>
+        <GridArea area={"magicWand"}>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.magicWand)}>
+            (M)agic Wand
+          </Button>
+        </GridArea>
+        <GridArea area={"magicWandConfig"}>
           &nbsp;Tolerance:
           <input
             type="number"
@@ -38,32 +148,8 @@ export default function Toolchest(props) {
               props.setTolerance(Number(event.target.value));
             }}
           />
-        </li>
-        <li><button onClick={() => toggleTool(TOOLS.fill)}>(F)ill</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.line)}>Line</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.continuousLine)}>Continuous Line</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.brush)}>Brush</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.calligBrush)}>Calligraphy Brush</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.sprinkle)}>Sprinkle</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.questionTool)}>?</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.eyedropper)}>Eyedropper</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.rectangle)}>Rectangle</button></li>
-        <li><button onClick={() => toggleTool(TOOLS.ellipse)}>Ellipse</button></li>
-      </ul>
-      <div>
-        <p>
-          Radius:
-          <input
-            type="number"
-            min="1"
-            max="100"
-            value={props.radius}
-            onChange={event => {
-              props.setRadius(Number(event.target.value));
-            }}
-          />
-        </p>
-      </div>
-    </SidebarWrapper>
+        </GridArea>
+      </MiscGrid>
+    </div>
   );
 }
