@@ -11,7 +11,9 @@ const jss = create(jssPreset());
 jss.options.insertionPoint = document.getElementById("jss-insertion-point");
 
 function ProperJssProvider(props) {
-  return <JssProvider jss={jss} generateClassName={generateClassName} {...props} />;
+  return (
+    <JssProvider jss={jss} generateClassName={generateClassName} {...props} />
+  );
 }
 
 function render() {
@@ -20,7 +22,7 @@ function render() {
     <ProperJssProvider>
       <App />
     </ProperJssProvider>,
-    document.getElementById("root")
+    document.getElementById("root"),
   );
 }
 

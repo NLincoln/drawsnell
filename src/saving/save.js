@@ -26,7 +26,7 @@ const Modal = props => {
       className="modal-wrapper"
       style={{
         transform: props.show ? "translateY(0vh)" : "translateY(-100vh)",
-        opacity: props.show ? "1" : "0"
+        opacity: props.show ? "1" : "0",
       }}
     >
       <div className="modal-header">
@@ -75,7 +75,7 @@ function saveCanvas(props) {
 
     // create a blob object representing the data as a JSON string
     const file = new Blob([string], {
-      type: "application/json"
+      type: "application/json",
     });
 
     // trigger a click event on an <a> tag to open the file explorer
@@ -97,7 +97,7 @@ class Save extends Component {
     super();
 
     this.state = {
-      isShowing: false
+      isShowing: false,
     };
 
     this.mainComp = props.mainComp;
@@ -106,13 +106,13 @@ class Save extends Component {
 
   openModal = () => {
     this.setState({
-      isShowing: true
+      isShowing: true,
     });
   };
 
   closeModal = () => {
     this.setState({
-      isShowing: false
+      isShowing: false,
     });
   };
 

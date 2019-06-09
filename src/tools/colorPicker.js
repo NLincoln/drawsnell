@@ -6,7 +6,7 @@ import { SketchPicker } from "../../node_modules/react-color";
 
 class ColorPicker extends React.Component {
   state = {
-    displayColorPicker: false
+    displayColorPicker: false,
   };
 
   handleClick = () => {
@@ -29,7 +29,7 @@ class ColorPicker extends React.Component {
           width: "36px",
           height: "14px",
           borderRadius: "2px",
-          background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
+          background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
         },
         swatch: {
           padding: "5px",
@@ -37,20 +37,20 @@ class ColorPicker extends React.Component {
           borderRadius: "1px",
           boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
           display: "inline-block",
-          cursor: "pointer"
+          cursor: "pointer",
         },
         popover: {
           position: "absolute",
-          zIndex: "2"
+          zIndex: "2",
         },
         cover: {
           position: "fixed",
           top: "0px",
           right: "0px",
           bottom: "0px",
-          left: "0px"
-        }
-      }
+          left: "0px",
+        },
+      },
     });
 
     return (

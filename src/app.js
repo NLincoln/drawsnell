@@ -46,14 +46,14 @@ export default function App() {
     r: "241",
     g: "112",
     b: "19",
-    a: "1"
+    a: "1",
   });
 
   let [color2, setColor2] = useState({
     r: "0",
     g: "0",
     b: "255",
-    a: "1"
+    a: "1",
   });
 
   let [radius, setRadius] = useState(1);

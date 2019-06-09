@@ -9,10 +9,10 @@ export const TILE_SIZE = 16; // each "fake" pixel is 64x64 real pixels
  * @param {{ x: number, y: number }} param
  */
 export function getPixelCoordsInCanvas({ x, y }) {
-    return {
-        x: Math.floor(x / TILE_SIZE),
-        y: Math.floor(y / TILE_SIZE)
-    };
+  return {
+    x: Math.floor(x / TILE_SIZE),
+    y: Math.floor(y / TILE_SIZE),
+  };
 }
 
 /**
@@ -25,15 +25,15 @@ export function getPixelCoordsInCanvas({ x, y }) {
  * @param {MouseEvent} event
  */
 export function getPositionOfEventOnElement(event) {
-    let boundingRect = event.target.getBoundingClientRect();
-    let style = getComputedStyle(event.target);
-    let borderLeft = parseInt(style.borderLeftWidth);
-    let borderTop = parseInt(style.borderTopWidth);
+  let boundingRect = event.target.getBoundingClientRect();
+  let style = getComputedStyle(event.target);
+  let borderLeft = parseInt(style.borderLeftWidth);
+  let borderTop = parseInt(style.borderTopWidth);
 
-    return {
-        x: event.clientX - boundingRect.left - borderLeft,
-        y: event.clientY - boundingRect.top - borderTop
-    };
+  return {
+    x: event.clientX - boundingRect.left - borderLeft,
+    y: event.clientY - boundingRect.top - borderTop,
+  };
 }
 
 /**
@@ -41,40 +41,53 @@ export function getPositionOfEventOnElement(event) {
  * @param {MouseEvent} event
  */
 export function getPixelCoordsOfEvent(event) {
-    return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
+  return getPixelCoordsInCanvas(getPositionOfEventOnElement(event));
 }
 
 // This returns the color at a specific pixel in the topmost layer
 export function getColorAtLayerCoord(mainComp, activeLayers, x, y) {
-    // Ensure all active layers share the same color at this point
+  // Ensure all active layers share the same color at this point
 
-    if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
-        //
-        let dataToReturn = mainComp.layers[activeLayers[activeLayers.length - 1]].pixelData[x][y];
-        return "rgb(" + dataToReturn.r + ", " + dataToReturn.g + ", " + dataToReturn.b + ", " + dataToReturn.a + ")";
-    }
-    return false;
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    //
+    let dataToReturn =
+      mainComp.layers[activeLayers[activeLayers.length - 1]].pixelData[x][y];
+    return (
+      "rgb(" +
+      dataToReturn.r +
+      ", " +
+      dataToReturn.g +
+      ", " +
+      dataToReturn.b +
+      ", " +
+      dataToReturn.a +
+      ")"
+    );
+  }
+  return false;
 }
 
 export function getActualColorAtLayerCoord(mainComp, activeLayers, x, y) {
-    if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
-      return mainComp.layers[activeLayers[activeLayers.length-1]].pixelData[x][y];
-    }
-    return false;
+  if (x >= 0 && x < CANVAS_SIZE_X && y >= 0 && y < CANVAS_SIZE_Y) {
+    return mainComp.layers[activeLayers[activeLayers.length - 1]].pixelData[x][
+      y
+    ];
   }
+  return false;
+}
 
 // this overwrites the contents of the given layers and replaces them with the specified color
 // it also doesn't redraw the canvas
 export function updateLayersWithColor(mainComp, activeLayers, r, g, b, a) {
-    for (let x = 0; x < CANVAS_SIZE_X; x++) {
-        for (let y = 0; y < CANVAS_SIZE_Y; y++) {
-            for (let ii = 0; ii < activeLayers.length; ii++) {
-                let ind = activeLayers[ii];
-                mainComp.layers[ind].pixelData[x][y].r = r;
-                mainComp.layers[ind].pixelData[x][y].g = g;
-                mainComp.layers[ind].pixelData[x][y].b = b;
-                mainComp.layers[ind].pixelData[x][y].a = a;
-            }
-        }
+  for (let x = 0; x < CANVAS_SIZE_X; x++) {
+    for (let y = 0; y < CANVAS_SIZE_Y; y++) {
+      for (let ii = 0; ii < activeLayers.length; ii++) {
+        let ind = activeLayers[ii];
+        mainComp.layers[ind].pixelData[x][y].r = r;
+        mainComp.layers[ind].pixelData[x][y].g = g;
+        mainComp.layers[ind].pixelData[x][y].b = b;
+        mainComp.layers[ind].pixelData[x][y].a = a;
+      }
     }
+  }
 }

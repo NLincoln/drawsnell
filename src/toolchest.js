@@ -125,7 +125,9 @@ export default function Toolchest(props) {
       </DoodleGrid>
       <MiscGrid className="miscChest">
         <GridArea area={"eyedropper"}>
-          <Button variant="raised" onClick={() => toggleTool(TOOLS.eyedropper)}>Eyedropper</Button>
+          <Button variant="raised" onClick={() => toggleTool(TOOLS.eyedropper)}>
+            Eyedropper
+          </Button>
         </GridArea>
         <GridArea area={"move"}>
           <Button variant="raised">Move</Button>

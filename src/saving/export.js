@@ -33,7 +33,7 @@ const Modal = props => {
       className="modal-wrapper"
       style={{
         transform: props.show ? "translateY(0vh)" : "translateY(-100vh)",
-        opacity: props.show ? "1" : "0"
+        opacity: props.show ? "1" : "0",
       }}
     >
       <div className="modal-header">
@@ -106,19 +106,19 @@ class Export extends Component {
     super();
 
     this.state = {
-      isShowing: false
+      isShowing: false,
     };
   }
 
   openModal = () => {
     this.setState({
-      isShowing: true
+      isShowing: true,
     });
   };
 
   closeModal = () => {
     this.setState({
-      isShowing: false
+      isShowing: false,
     });
   };
 

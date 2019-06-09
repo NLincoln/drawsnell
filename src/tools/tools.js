@@ -2,20 +2,20 @@ import { useState, useEffect, useCallback } from "../../node_modules/react";
 
 // Object.freeze means this object can't be modified later
 export const TOOLS = Object.freeze({
-  draw: 'draw',
-  erase: 'erase',
-  fill: 'fill',
-  select: 'select',
-  magicWand: 'magicWand',
-  brush: 'brush',
-  questionTool: 'questionTool',
-  line: 'line',
-  continuousLine: 'continuousLine',
-  calligBrush: 'calligBrush',
-  sprinkle: 'sprinkle',
-  eyedropper: 'eyedropper',
-  rectangle: 'rectangle',
-  ellipse: 'ellipse',
+  draw: "draw",
+  erase: "erase",
+  fill: "fill",
+  select: "select",
+  magicWand: "magicWand",
+  brush: "brush",
+  questionTool: "questionTool",
+  line: "line",
+  continuousLine: "continuousLine",
+  calligBrush: "calligBrush",
+  sprinkle: "sprinkle",
+  eyedropper: "eyedropper",
+  rectangle: "rectangle",
+  ellipse: "ellipse",
 });
 
 export const TOOL_CURSORS = Object.freeze({
@@ -31,7 +31,7 @@ const TOOL_KEYS = {
   e: TOOLS.erase,
   f: TOOLS.fill,
   l: TOOLS.select,
-  m: TOOLS.magicWand
+  m: TOOLS.magicWand,
 };
 
 /**
@@ -70,7 +70,7 @@ export function useToolHandler() {
 
       setTool(nextTool);
     },
-    [setTool]
+    [setTool],
   );
 
   useEffect(() => {

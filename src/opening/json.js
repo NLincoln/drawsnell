@@ -17,7 +17,7 @@ export default function ImportJSONF(props) {
       let newComp = new Composition(
         obj.mainComp.width,
         obj.mainComp.height,
-        obj.mainComp.layers
+        obj.mainComp.layers,
       );
       props.changeMainComp(newComp);
       props.changeActiveLayers(obj.activeLayers);

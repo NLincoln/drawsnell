@@ -102,7 +102,7 @@ export default function RightPanel(props) {
     // we subtract one here because the bottom layer isn't accessible to the user
     if (props.activeLayers.length === props.mainComp.layers.length - 1) {
       window.alert(
-        "You can't delete EVERY layer! Please deslect at least one layer before continuing."
+        "You can't delete EVERY layer! Please deslect at least one layer before continuing.",
       );
     } else {
       for (let i = 0; i < props.mainComp.layers.length; i++) {
@@ -443,7 +443,7 @@ export default function RightPanel(props) {
       {/* Solo Layers = {props.mainComp.getSolos().join(", ")} */}
       Solo Layers ={" "}
       {props.mainComp.getLayerNamesStringFromArrayOfIndices(
-        props.mainComp.getSolos()
+        props.mainComp.getSolos(),
       )}
       <br />
       <Button variant="raised" onClick={e => addLayer()}>
